@@ -1,2 +1,3 @@
 # UmeroKit
-User last.fm in your Apple apps.
+
+A description of this package.

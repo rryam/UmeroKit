@@ -1,0 +1,38 @@
+definitions:
+  workflow: &base_workflow
+    instance_type: mac_mini_m1
+    triggering:
+      events:
+        - push
+        - pull_request
+        - tag
+    when:
+      changeset:
+        excludes:
+          - "**/*.md"
+    scripts:
+      - name: Build framework
+        script: xcodebuild -scheme $XCODE_SCHEME -destination "platform=iOS Simulator,name=$PHONE_NAME"
+      - name: Test framework
+        script: |
+          set -o pipefail
+          xcodebuild -scheme $XCODE_SCHEME -destination "platform=iOS Simulator,name=$PHONE_NAME" test | xcpretty --report junit
+        test_report: build/reports/junit.xml
+
+workflows:
+  umerokit:
+    <<: *base_workflow
+    name: UmeroKit Workflow
+    environment:
+      xcode: 14.2
+      vars:
+        XCODE_SCHEME: UmeroKit
+        PHONE_NAME: "iPhone 14"
+  umerokit-old:
+    <<: *base_workflow
+    name: UmeroKit Xcode 13 Workflow
+    environment:
+      xcode: 13.4.1
+      vars:
+        XCODE_SCHEME: UmeroKit
+        PHONE_NAME: "iPhone 13"
