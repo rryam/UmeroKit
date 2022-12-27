@@ -28,11 +28,3 @@ workflows:
       vars:
         XCODE_SCHEME: UmeroKit
         PHONE_NAME: "iPhone 14"
-  umerokit-old:
-    <<: *base_workflow
-    name: UmeroKit Xcode 13 Workflow
-    environment:
-      xcode: 13.4.1
-      vars:
-        XCODE_SCHEME: UmeroKit
-        PHONE_NAME: "iPhone 13"
