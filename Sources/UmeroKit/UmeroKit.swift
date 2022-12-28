@@ -56,4 +56,82 @@ extension UmeroKit {
     let model = try await response(model: UItemCollection.self, url: components.url)
     return model.album
   }
+
+  public func albumTopTags(for album: String,
+                           artist: String,
+                           autocorrect: Bool = false,
+                           username: String? = nil,
+                           language: String? = nil) async throws -> UTopTags {
+    var components = UURLComponents(apiKey: apiKey, path: AlbumEndpoint.getTopTags)
+
+    var queryItems: [URLQueryItem] = []
+    queryItems.append(URLQueryItem(name: "album", value: album))
+    queryItems.append(URLQueryItem(name: "artist", value: artist))
+    queryItems.append(URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)"))
+
+    if let username {
+      queryItems.append(URLQueryItem(name: "username", value: username))
+    }
+
+    if let language {
+      queryItems.append(URLQueryItem(name: "language", value: language))
+    }
+
+    components.items = queryItems
+
+    return try await response(model: UTopTags.self, url: components.url)
+  }
+}
+
+// MARK: - ARTIST
+extension UmeroKit {
+  public func artistInfo(for artist: String,
+                         autocorrect: Bool = true,
+                         username: String? = nil,
+                         language: String? = nil) async throws -> UArtist {
+
+    var components = UURLComponents(apiKey: apiKey, path: ArtistEndpoint.getInfo)
+
+    var queryItems: [URLQueryItem] = []
+    queryItems.append(URLQueryItem(name: "artist", value: artist))
+    queryItems.append(URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)"))
+
+    if let username {
+      queryItems.append(URLQueryItem(name: "username", value: username))
+    }
+
+    if let language {
+      queryItems.append(URLQueryItem(name: "language", value: language))
+    }
+
+    components.items = queryItems
+
+    return try await response(model: UArtist.self, url: components.url)
+  }
+}
+
+// MARK: - TAG
+extension UmeroKit {
+  public func tagInfo(for tag: String,
+                      language: String? = nil) async throws -> UTag {
+    var components = UURLComponents(apiKey: apiKey, path: TagEndpoint.getInfo)
+
+    var queryItems: [URLQueryItem] = []
+    queryItems.append(URLQueryItem(name: "tag", value: tag))
+
+    if let language {
+      queryItems.append(URLQueryItem(name: "language", value: language))
+    }
+
+    components.items = queryItems
+
+    let info = try await response(model: UTagInfo.self, url: components.url)
+    return info.tag
+  }
+}
+
+extension Bool {
+  var intValue: Int {
+    return self ? 1 : 0
+  }
 }

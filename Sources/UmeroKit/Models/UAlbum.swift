@@ -7,8 +7,6 @@
 
 import Foundation
 
-
-
 public struct UAlbum {
   public let name: String
   public let artist: String
@@ -18,7 +16,7 @@ public struct UAlbum {
   public let image: [UImage]
   public let url: String
   public let listeners: Double
-  public let wiki: UAlbumWiki
+  public let wiki: UWiki
 }
 
 extension UAlbum: Codable {
@@ -29,7 +27,7 @@ extension UAlbum: Codable {
     self.tags = try container.decode(UTags.self, forKey: .tags)
     self.image = try container.decode([UImage].self, forKey: .image)
     self.url = try container.decode(String.self, forKey: .url)
-    self.wiki = try container.decode(UAlbumWiki.self, forKey: .wiki)
+    self.wiki = try container.decode(UWiki.self, forKey: .wiki)
 
     let playcountString = try container.decode(String.self, forKey: .playcount)
     let listenersString = try container.decode(String.self, forKey: .listeners)
@@ -49,10 +47,4 @@ extension UAlbum: Codable {
       throw NSError(domain: "Listeners is not of the type double for \(name)", code: 0)
     }
   }
-}
-
-public struct UAlbumWiki: Codable {
-  public let published: String
-  public let summary: String
-  public let content: String
 }

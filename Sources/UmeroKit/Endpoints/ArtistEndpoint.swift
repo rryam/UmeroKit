@@ -7,7 +7,7 @@
 
 import Foundation
 
-private enum ArtistEndpoint: String, URLEndpoint {
+enum ArtistEndpoint: String, URLEndpoint {
   case getInfo
   case getTags
   case getTopTags

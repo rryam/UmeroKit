@@ -8,6 +8,10 @@
 import Foundation
 
 public struct UTag: Codable {
-  public  let url: URL
   public let name: String
+  public let url: URL?
+  public let count: Int?
+  public let total: Int?
+  public let reach: Int?
+  public let wiki: UWiki?
 }
