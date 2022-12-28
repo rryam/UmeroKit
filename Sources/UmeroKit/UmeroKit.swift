@@ -115,18 +115,24 @@ extension UmeroKit {
   public func tagInfo(for tag: String,
                       language: String? = nil) async throws -> UTag {
     var components = UURLComponents(apiKey: apiKey, path: TagEndpoint.getInfo)
-
+    
     var queryItems: [URLQueryItem] = []
     queryItems.append(URLQueryItem(name: "tag", value: tag))
-
+    
     if let language {
       queryItems.append(URLQueryItem(name: "language", value: language))
     }
-
+    
     components.items = queryItems
-
+    
     let info = try await response(model: UTagInfo.self, url: components.url)
     return info.tag
+  }
+  
+  public func topTags() async throws -> [UTag] {
+    let components = UURLComponents(apiKey: apiKey, path: TagEndpoint.getTopTags)
+    let model = try await response(model: UTopTags.self, url: components.url)
+    return model.toptags.tag
   }
 }
 

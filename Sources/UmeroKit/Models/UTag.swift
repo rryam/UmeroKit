@@ -7,7 +7,11 @@
 
 import Foundation
 
-public struct UTag: Codable {
+public struct UTag: Identifiable, Codable {
+  public var id: String {
+    name
+  }
+
   public let name: String
   public let url: URL?
   public let count: Int?
