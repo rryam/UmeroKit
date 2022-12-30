@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Represents a set of endpoints for interacting with track data from the Last.fm API.
 enum TrackEndpoint: String, URLEndpoint {
   case getInfo
   case getTags

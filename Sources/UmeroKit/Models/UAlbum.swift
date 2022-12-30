@@ -7,15 +7,34 @@
 
 import Foundation
 
+/// Represents an album in Last.fm.
 public struct UAlbum {
+
+  /// Name of the album.
   public let name: String
+
+  /// Name of the artist of the album.
   public let artist: String
+
+  /// MusicBrainz ID of the album.
   public let mbid: UItemID?
+
+  /// Tags applied to the album by users.
   public let tags: UTags
+
+  /// Number of times the album has been played on Last.fm.
   public let playcount: Double
+
+  /// Images associated with the album.
   public let image: [UImage]
+
+  /// Last.fm page for the album.
   public let url: String
+
+  /// Number of listeners who have played the album on Last.fm.
   public let listeners: Double
+
+  /// Summary for the album.
   public let wiki: UWiki
 }
 

@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Represents a set of endpoints for interacting with artist data from the Last.fm API.
 enum ArtistEndpoint: String, URLEndpoint {
   case getInfo
   case getTags
