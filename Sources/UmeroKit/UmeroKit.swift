@@ -136,6 +136,20 @@ extension UmeroKit {
   }
 }
 
+extension UmeroKit {
+  public func topChartArtists(limit: Int = 50, page: Int = 1) async throws -> UChartArtists {
+    var components = UURLComponents(apiKey: apiKey, path: ChartEndpoint.getTopArtists)
+    var queryItems: [URLQueryItem] = []
+
+    queryItems.append(URLQueryItem(name: "limit", value: "\(limit)"))
+    queryItems.append(URLQueryItem(name: "page", value: "\(page)"))
+
+    components.items = queryItems
+
+    return try await response(model: UChartArtists.self, url: components.url)
+  }
+}
+
 extension Bool {
   var intValue: Int {
     return self ? 1 : 0
