@@ -148,6 +148,18 @@ extension UmeroKit {
 
     return try await response(model: UChartArtists.self, url: components.url)
   }
+
+  public func topChartTags(limit: Int = 50, page: Int = 1) async throws -> UChartTags {
+    var components = UURLComponents(apiKey: apiKey, path: ChartEndpoint.getTopTags)
+    var queryItems: [URLQueryItem] = []
+
+    queryItems.append(URLQueryItem(name: "limit", value: "\(limit)"))
+    queryItems.append(URLQueryItem(name: "page", value: "\(page)"))
+
+    components.items = queryItems
+
+    return try await response(model: UChartTags.self, url: components.url)
+  }
 }
 
 extension Bool {

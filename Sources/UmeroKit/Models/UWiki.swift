@@ -9,6 +9,6 @@ import Foundation
 
 public struct UWiki: Codable {
   public let published: String?
-  public let summary: String
-  public let content: String
+  public let summary: String?
+  public let content: String?
 }

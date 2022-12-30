@@ -10,3 +10,7 @@ import Foundation
 public struct UTopTags: Codable {
   public let toptags: UTags
 }
+
+public struct UChartTags: Codable {
+  public let tags: UTags
+}
