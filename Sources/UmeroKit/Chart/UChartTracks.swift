@@ -7,10 +7,17 @@
 
 import Foundation
 
+/// Represents a chart of top tracks.
 public struct UChartTracks {
-  public let tracks: [UTrack]
-  public let attributes: UChartAttributes
 
+  /// Collection of `UTrack` representing the top tracks on the chart.
+  public let tracks: [UTrack]
+
+  /// The attributes of the chart like page, total pages, and total count.
+  public let attributes: UChartAttributes
+}
+
+extension UChartTracks {
   enum MainKey: String, CodingKey {
     case tracks
   }

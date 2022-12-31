@@ -7,10 +7,16 @@
 
 import Foundation
 
+/// Represents a chart of top artists.
 public struct UChartArtists {
+  /// Collection of `UArtist` representing the top artists on the chart.
   public let artists: [UArtist]
-  public let attributes: UChartAttributes
 
+  /// The attributes of the chart like page, total pages, and total count.
+  public let attributes: UChartAttributes
+}
+
+extension UChartArtists {
   enum MainKey: String, CodingKey {
     case artists
   }
@@ -33,6 +39,7 @@ extension UChartArtists: Decodable {
 
 extension UChartArtists: Encodable {
   public func encode(to encoder: Encoder) throws {
+    // TO:DO
   }
 }
 

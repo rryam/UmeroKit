@@ -8,7 +8,10 @@
 import MusicKit
 import Foundation
 
+/// Represents a request to fetch data for a chart from Last.fm.
+/// It is a generic struct that takes a type conforming to the `UChartRequestable` and `Codable` protocols.
 struct UChartRequest<UChartItemType> where UChartItemType: UChartRequestable, UChartItemType: Codable {
+
   /// A limit for the number of results to fetch per page.
   /// Defaults to 50.
   var limit: Int
@@ -17,14 +20,17 @@ struct UChartRequest<UChartItemType> where UChartItemType: UChartRequestable, UC
   /// Defaults to first page.
   var page: Int
 
+  /// The chart endpoint to which the request will be sent.
   private var endpoint: ChartEndpoint
 
+  /// Initializes a new `UChartRequest` object with the specified endpoint, limit, and page.
   init(for endpoint: ChartEndpoint, limit: Int = 50, page: Int = 1) {
     self.endpoint = endpoint
     self.limit = limit
     self.page = page
   }
 
+  /// Makes a request to fetch data for a chart using the specified API key. Returns the data as a `UChartItemType` object conforming to the `UChartRequestable` and `Codable` protocols.
   func response(with key: String) async throws -> UChartItemType {
     var components = UURLComponents(apiKey: key, path: endpoint)
     var queryItems: [URLQueryItem] = []
@@ -36,27 +42,6 @@ struct UChartRequest<UChartItemType> where UChartItemType: UChartRequestable, UC
 
     let request = UDataRequest<UChartItemType>(url: components.url)
     let model = try await request.response()
-    return model
-  }
-}
-
-struct UDataRequest<Model: Codable> {
-  private var url: URL?
-
-  init(url: URL?) {
-    self.url = url
-  }
-
-  func response() async throws -> Model {
-    guard let url else {
-      throw URLError(.badURL)
-    }
-
-    let (data, _) = try await URLSession.shared.data(from: url)
-
-    let decoder = JSONDecoder()
-    decoder.dateDecodingStrategy = .iso8601
-    let model = try decoder.decode(Model.self, from: data)
     return model
   }
 }

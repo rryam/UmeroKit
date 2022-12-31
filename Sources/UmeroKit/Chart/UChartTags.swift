@@ -7,8 +7,12 @@
 
 import Foundation
 
+/// Represents a chart of top tags.
 public struct UChartTags: Codable {
+  /// Collection of `UTags` representing the top tags on the chart.
   public let tags: UTags
+
+  /// The attributes of the chart like page, total pages, and total count.
   public let attributes: UChartAttributes
 }
 

@@ -7,6 +7,9 @@
 
 import Foundation
 
+/// Defines the property that an object must implement in order to request data for a chart.
 protocol UChartRequestable {
+  
+  /// The attributes of the chart.
   var attributes: UChartAttributes { get }
 }
