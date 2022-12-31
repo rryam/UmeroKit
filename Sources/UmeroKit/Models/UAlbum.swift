@@ -29,7 +29,7 @@ public struct UAlbum {
   public let image: [UImage]
 
   /// Last.fm page for the album.
-  public let url: String
+  public let url: URL
 
   /// Number of listeners who have played the album on Last.fm.
   public let listeners: Double
@@ -45,7 +45,7 @@ extension UAlbum: Codable {
     self.artist = try container.decode(String.self, forKey: .artist)
     self.tags = try container.decode(UTags.self, forKey: .tags)
     self.image = try container.decode([UImage].self, forKey: .image)
-    self.url = try container.decode(String.self, forKey: .url)
+    self.url = try container.decode(URL.self, forKey: .url)
     self.wiki = try container.decode(UWiki.self, forKey: .wiki)
 
     let playcountString = try container.decode(String.self, forKey: .playcount)
