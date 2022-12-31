@@ -30,7 +30,8 @@ struct UChartRequest<UChartItemType> where UChartItemType: UChartRequestable, UC
     self.page = page
   }
 
-  /// Makes a request to fetch data for a chart using the specified API key. Returns the data as a `UChartItemType` object conforming to the `UChartRequestable` and `Codable` protocols.
+  /// Makes a request to fetch data for a chart using the specified API key.
+  /// Returns the data as a `UChartItemType` object conforming to the `UChartRequestable` and `Codable` protocols.
   func response(with key: String) async throws -> UChartItemType {
     var components = UURLComponents(apiKey: key, path: endpoint)
     var queryItems: [URLQueryItem] = []
