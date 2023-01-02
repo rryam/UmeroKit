@@ -8,6 +8,7 @@
 import Foundation
 
 /// Represents an artist in Last.fm.
+@available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 6.0, *)
 public struct UArtist {
   /// MusicBrainz ID of the artist.
   public let mbid: UItemID?
@@ -29,12 +30,9 @@ public struct UArtist {
   public let image: [UImage]?
 }
 
-extension UArtist: Identifiable {
-  public var id: String {
-    url.absoluteString
-  }
-}
+extension UArtist: UItem {}
 
+@available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 6.0, *)
 extension UArtist: Codable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)

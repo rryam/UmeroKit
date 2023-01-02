@@ -8,11 +8,8 @@
 import Foundation
 
 /// Represents a track in Last.fm.
-public struct UTrack: Identifiable {
-  public var id: String {
-    name
-  }
-  
+@available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 6.0, *)
+public struct UTrack {
   public let name: String
   public let duration: Int
   public let playcount: Double
@@ -23,6 +20,9 @@ public struct UTrack: Identifiable {
   public let image: [UImage]
 }
 
+extension UTrack: UItem {}
+
+@available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 6.0, *)
 extension UTrack: Codable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
