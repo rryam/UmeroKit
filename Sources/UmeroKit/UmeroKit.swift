@@ -7,28 +7,24 @@
 
 import Foundation
 
+struct UItemCollection: Codable {
+  let album: UAlbum
+}
+
+public let Umero = UmeroKit.default
+
 public class UmeroKit {
-  var apiKey: String
+  private static var apiKey: String = ""
 
-  struct UItemCollection: Codable {
-    let album: UAlbum
-  }
-
-  public init(apiKey: String) {
-    self.apiKey = apiKey
-  }
-
-  func response<Model: Codable>(model: Model.Type, url: URL?) async throws -> Model {
-    guard let url else {
-      throw URLError(.badURL)
+  public static var `default`: UmeroKit {
+    guard apiKey != "" else {
+      fatalError("Provide the API Key.")
     }
+    return UmeroKit()
+  }
 
-    let (data, _) = try await URLSession.shared.data(from: url)
-
-    let decoder = JSONDecoder()
-    decoder.dateDecodingStrategy = .iso8601
-    let model = try decoder.decode(model.self, from: data)
-    return model
+  public static func configure(withAPIKey apiKey: String) {
+    Self.apiKey = apiKey
   }
 }
 
@@ -39,22 +35,24 @@ extension UmeroKit {
                         autocorrect: Bool = false,
                         username: String? = nil,
                         language: String? = nil) async throws -> UAlbum {
-    var components = UURLComponents(apiKey: apiKey, path: AlbumEndpoint.getInfo)
+    var components = UURLComponents(apiKey: Self.apiKey, path: AlbumEndpoint.getInfo)
     components.items = [URLQueryItem(name: "album", value: album), URLQueryItem(name: "artist", value: artist)]
 
-    let model = try await response(model: UItemCollection.self, url: components.url)
-    return model.album
+    let request = UDataRequest<UItemCollection>(url: components.url)
+    let response = try await request.response()
+    return response.album
   }
 
   public func albumInfo(for mbid: UItemID,
                         autocorrect: Bool = false,
                         username: String? = nil,
                         language: String? = nil) async throws -> UAlbum {
-    var components = UURLComponents(apiKey: apiKey, path: AlbumEndpoint.getInfo)
+    var components = UURLComponents(apiKey: Self.apiKey, path: AlbumEndpoint.getInfo)
     components.items = [URLQueryItem(name: "mbid", value: mbid.rawValue)]
 
-    let model = try await response(model: UItemCollection.self, url: components.url)
-    return model.album
+    let request = UDataRequest<UItemCollection>(url: components.url)
+    let response = try await request.response()
+    return response.album
   }
 
   public func albumTopTags(for album: String,
@@ -62,7 +60,7 @@ extension UmeroKit {
                            autocorrect: Bool = false,
                            username: String? = nil,
                            language: String? = nil) async throws -> UTopTags {
-    var components = UURLComponents(apiKey: apiKey, path: AlbumEndpoint.getTopTags)
+    var components = UURLComponents(apiKey: Self.apiKey, path: AlbumEndpoint.getTopTags)
 
     var queryItems: [URLQueryItem] = []
     queryItems.append(URLQueryItem(name: "album", value: album))
@@ -79,7 +77,9 @@ extension UmeroKit {
 
     components.items = queryItems
 
-    return try await response(model: UTopTags.self, url: components.url)
+    let request = UDataRequest<UTopTags>(url: components.url)
+    let response = try await request.response()
+    return response
   }
 }
 
@@ -90,7 +90,7 @@ extension UmeroKit {
                          username: String? = nil,
                          language: String? = nil) async throws -> UArtist {
 
-    var components = UURLComponents(apiKey: apiKey, path: ArtistEndpoint.getInfo)
+    var components = UURLComponents(apiKey: Self.apiKey, path: ArtistEndpoint.getInfo)
 
     var queryItems: [URLQueryItem] = []
     queryItems.append(URLQueryItem(name: "artist", value: artist))
@@ -106,7 +106,9 @@ extension UmeroKit {
 
     components.items = queryItems
 
-    return try await response(model: UArtist.self, url: components.url)
+    let request = UDataRequest<UArtist>(url: components.url)
+    let response = try await request.response()
+    return response
   }
 }
 
@@ -114,7 +116,7 @@ extension UmeroKit {
 extension UmeroKit {
   public func tagInfo(for tag: String,
                       language: String? = nil) async throws -> UTag {
-    var components = UURLComponents(apiKey: apiKey, path: TagEndpoint.getInfo)
+    var components = UURLComponents(apiKey: Self.apiKey, path: TagEndpoint.getInfo)
     
     var queryItems: [URLQueryItem] = []
     queryItems.append(URLQueryItem(name: "tag", value: tag))
@@ -124,15 +126,17 @@ extension UmeroKit {
     }
     
     components.items = queryItems
-    
-    let info = try await response(model: UTagInfo.self, url: components.url)
-    return info.tag
+
+    let request = UDataRequest<UTagInfo>(url: components.url)
+    let response = try await request.response()
+    return response.tag
   }
   
   public func topTags() async throws -> [UTag] {
-    let components = UURLComponents(apiKey: apiKey, path: TagEndpoint.getTopTags)
-    let model = try await response(model: UTopTags.self, url: components.url)
-    return model.toptags.tag
+    let components = UURLComponents(apiKey: Self.apiKey, path: TagEndpoint.getTopTags)
+    let request = UDataRequest<UTopTags>(url: components.url)
+    let response = try await request.response()
+    return response.toptags.tag
   }
 }
 
@@ -157,7 +161,7 @@ extension UmeroKit {
   /// - Returns: A `UChartArtists` object containing the top charting artists.
   public func topChartArtists(limit: Int = 50, page: Int = 1) async throws -> UChartArtists {
     let request = UChartRequest<UChartArtists>(for: .getTopArtists, limit: limit, page: page)
-    let response = try await request.response(with: apiKey)
+    let response = try await request.response(with: Self.apiKey)
     return response
   }
 
@@ -179,7 +183,7 @@ extension UmeroKit {
   /// - Returns: A `UChartTags` object containing the top charting tags.
   public func topChartTags(limit: Int = 50, page: Int = 1) async throws -> UChartTags {
     let request = UChartRequest<UChartTags>(for: .getTopTags, limit: limit, page: page)
-    let response = try await request.response(with: apiKey)
+    let response = try await request.response(with: Self.apiKey)
     return response
   }
 
@@ -201,7 +205,7 @@ extension UmeroKit {
   /// - Returns: A `UChartTracks` object containing the top charting tracks.
   public func topChartTracks(limit: Int = 50, page: Int = 1) async throws -> UChartTracks {
     let request = UChartRequest<UChartTracks>(for: .getTopTracks, limit: limit, page: page)
-    let response = try await request.response(with: apiKey)
+    let response = try await request.response(with: Self.apiKey)
     return response
   }
 }
@@ -229,7 +233,7 @@ extension UmeroKit {
   /// - Returns: A `UGeoArtists` object containing the most popular artists.
   public func topArtists(for country: String, limit: Int = 50, page: Int = 1) async throws -> UGeoArtists {
     let request = UGeoRequest<UGeoArtists>(for: country, endpoint: .getTopArtists, limit: limit, page: page)
-    let response = try await request.response(with: apiKey)
+    let response = try await request.response(with: Self.apiKey)
     return response
   }
 
@@ -253,7 +257,7 @@ extension UmeroKit {
   /// - Returns: A `UGeoTracks` object containing the most popular tracks.
   public func topTracks(for country: String, limit: Int = 50, page: Int = 1) async throws -> UGeoTracks {
     let request = UGeoRequest<UGeoTracks>(for: country, endpoint: .getTopTracks, limit: limit, page: page)
-    let response = try await request.response(with: apiKey)
+    let response = try await request.response(with: Self.apiKey)
     return response
   }
 }
