@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import CryptoKit
 
 struct UItemCollection: Codable {
   let album: UAlbum
@@ -38,58 +37,18 @@ public class UmeroKit {
 
 extension UmeroKit {
   public func updateNowPlaying(track: String, artist: String, username: String, password: String) async throws {
-    let authRequest = UAuthDataRequest(username: username, password: password, key: Self.apiKey, secret: Self.secret)
+    let authRequest = UAuthDataRequest(username: username, password: password, apiKey: Self.apiKey, secret: Self.secret)
     let authResponse = try await authRequest.response()
 
-    let endpoint = TrackEndpoint.updateNowPlaying
-
-    var components = URLComponents()
-    components.scheme = "https"
-    components.host = "ws.audioscrobbler.com"
-    components.path = "/2.0/"
-    components.queryItems = [.init(name: "format", value: "json")]
-
-    guard let url = components.url else {
-      return
-    }
-
-    let signature = "api_key\(Self.apiKey)artist\(artist)method\(endpoint.path)sk\(authResponse.1.session.key)track\(track)\(Self.secret)"
-
-    print(signature)
-    let data = Data(signature.utf8)
-    let hashedSignature = Insecure.MD5.hash(data: data).map { String(format: "%02hhx", $0) }.joined()
-
-    let postData: Data = "method=\(endpoint.path)&track=\(track)&artist=\(artist)&api_sig=\(hashedSignature)&api_key=\(Self.apiKey)&sk=\(authResponse.1.session.key)".data(using: .utf8)!
-
-    let request = UDataPostRequest<UItemCollection>(url: components.url, data: postData)
-    let response = try await request.responseData()
-    print(try response.printJSON())
+    let request = UScrobblingRequest(track: track, artist: artist, endpoint: .updateNowPlaying, apiKey: Self.apiKey, sessionKey: authResponse.key, secret: Self.secret)
+    let response = try await request.response()
   }
 
   public func scrobble(track: String, artist: String, username: String, password: String) async throws {
-    let authRequest = UAuthDataRequest(username: username, password: password, key: Self.apiKey, secret: Self.secret)
+    let authRequest = UAuthDataRequest(username: username, password: password, apiKey: Self.apiKey, secret: Self.secret)
     let authResponse = try await authRequest.response()
-
-    let endpoint = TrackEndpoint.scrobble
-    let timestamp = Date().timeIntervalSince1970
-
-    var components = URLComponents()
-    components.scheme = "https"
-    components.host = "ws.audioscrobbler.com"
-    components.path = "/2.0/"
-    components.queryItems = [.init(name: "format", value: "json")]
-
-    let signature = "api_key\(Self.apiKey)artist\(artist)method\(endpoint.path)sk\(authResponse.1.session.key)timestamp\(timestamp)track\(track)\(Self.secret)"
-
-    print(signature)
-    let data = Data(signature.utf8)
-    let hashedSignature = Insecure.MD5.hash(data: data).map { String(format: "%02hhx", $0) }.joined()
-
-    let postData: Data = "method=\(endpoint.path)&track=\(track)&artist=\(artist)&api_sig=\(hashedSignature)&api_key=\(Self.apiKey)&sk=\(authResponse.1.session.key)&timestamp=\(timestamp)".data(using: .utf8)!
-
-    let request = UDataPostRequest<UItemCollection>(url: components.url, data: postData)
-    let response = try await request.responseData()
-    print(try response.printJSON())
+    let request = UScrobblingRequest(track: track, artist: artist, endpoint: .scrobble, apiKey: Self.apiKey, sessionKey: authResponse.key, secret: Self.secret)
+    let response = try await request.response()
   }
 }
 
