@@ -4,13 +4,14 @@ definitions:
       events:
         - push
         - pull_request
-  email: &email
+  email_develop: &email_develop
     email:
       recipients:
         - rudrankriyam@gmail.com
       notify:
         success: true
         failure: true
+        
 workflows:
   umerokit:
     name: UmeroKit Workflow
@@ -53,9 +54,9 @@ workflows:
           done
         test_report: build/reports/junit.xml
     publishing:
-      <<: *email
-
- umerokit-update-docs:
+      <<: *email_develop
+      
+umerokit-update-docs:
     name: UmeroKit Docs Update Workflow
     environment:
       groups:
