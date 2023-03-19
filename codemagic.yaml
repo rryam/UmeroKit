@@ -1,30 +1,79 @@
 definitions:
-  workflow: &base_workflow
-    instance_type: mac_mini_m1
-    triggering:
+  triggering:
+    push: &events
       events:
         - push
         - pull_request
-        - tag
-    when:
-      changeset:
-        excludes:
-          - "**/*.md"
-    scripts:
-      - name: Build framework
-        script: xcodebuild -scheme $XCODE_SCHEME -destination "platform=iOS Simulator,name=$PHONE_NAME"
-      - name: Test framework
-        script: |
-          set -o pipefail
-          xcodebuild -scheme $XCODE_SCHEME -destination "platform=iOS Simulator,name=$PHONE_NAME" test | xcpretty --report junit
-        test_report: build/reports/junit.xml
-
+  email: &email
+    email:
+      recipients:
+        - rudrankriyam@gmail.com
+      notify:
+        success: true
+        failure: true
 workflows:
   umerokit:
-    <<: *base_workflow
     name: UmeroKit Workflow
+    instance_type: mac_mini_m1
     environment:
-      xcode: 14.2
       vars:
-        XCODE_SCHEME: UmeroKit
-        PHONE_NAME: "iPhone 14"
+        XCODE_SCHEME: "UmeroKit"
+    when:
+      changeset:
+        includes:
+          - 'Sources'
+          - 'Tests'
+    triggering:
+      <<: *events
+    scripts:
+      - name: Build Framework
+        script: |
+          #!/bin/zsh
+
+          declare -a DESTINATIONS=("platform=iOS Simulator,name=iPhone 14" "platform=watchOS Simulator,name=Apple Watch Series 8 (45mm)" "platform=tvOS Simulator,name=Apple TV 4K (3rd generation)" "platform=macOS")
+          for DESTINATION in "${DESTINATIONS[@]}"
+            do
+              xcodebuild clean build \
+                -scheme "$XCODE_SCHEME" \
+                -destination "$DESTINATION" \
+                -skipPackagePluginValidation
+          done
+      - name: Test Framework
+        script: |
+          #!/bin/zsh
+          
+          declare -a DESTINATIONS=("platform=iOS Simulator,name=iPhone 14" "platform=watchOS Simulator,name=Apple Watch Series 8 (45mm)" "platform=tvOS Simulator,name=Apple TV 4K (3rd generation)" "platform=macOS")
+          for DESTINATION in "${DESTINATIONS[@]}"
+            do
+              set -o pipefail
+              xcodebuild clean test \
+                -scheme "$XCODE_SCHEME" \
+                -destination "$DESTINATION" \
+                -skipPackagePluginValidation | xcpretty --report junit
+          done
+        test_report: build/reports/junit.xml
+    publishing:
+      <<: *email
+
+  musadorakit-update-docs:
+    name: MusadoraKit Docs Update Workflow
+    environment:
+      groups:
+        - GitHub
+    scripts:
+      - name: Update DocC Documentation
+        script: |
+          #!/bin/zsh
+
+          swift package --allow-writing-to-directory ./docs \
+          generate-documentation --target MusadoraKit \
+          --disable-indexing \
+          --transform-for-static-hosting \
+          --hosting-base-path MusadoraKit \
+          --output-path ./docs
+
+          git add .
+          git commit -m "[skip ci] Update DocC Documentation"
+          git remote set-url origin https://rudrankriyam:$token@github.com/rryam/MusadoraKit.git
+          git pull --ff-only
+          git push origin main
