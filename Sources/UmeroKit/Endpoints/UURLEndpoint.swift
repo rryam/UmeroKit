@@ -7,6 +7,6 @@
 
 import Foundation
 
-protocol URLEndpoint {
-  var name: String { get }
+protocol UURLEndpoint {
+  var path: String { get }
 }

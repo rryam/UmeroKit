@@ -36,7 +36,7 @@ struct UGeoRequest<UGeoItemType> where UGeoItemType: UGeoRequestable, UGeoItemTy
   /// Makes a request to fetch country wise popular data using the specified API key.
   /// Returns the data as a `UGeoItemType` object conforming to the `UGeoRequestable` and `Codable` protocols.
   func response(with key: String) async throws -> UGeoItemType {
-    var components = UURLComponents(apiKey: key, path: endpoint)
+    var components = UURLComponents(apiKey: key, endpoint: endpoint)
     var queryItems: [URLQueryItem] = []
 
     queryItems.append(URLQueryItem(name: "country", value: country))

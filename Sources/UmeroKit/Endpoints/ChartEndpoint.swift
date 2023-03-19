@@ -8,12 +8,12 @@
 import Foundation
 
 /// Represents a set of endpoints for interacting with chart data from the Last.fm API.
-enum ChartEndpoint: String, URLEndpoint {
+enum ChartEndpoint: String, UURLEndpoint {
   case getTopArtists
   case getTopTracks
   case getTopTags
 
-  var name: String {
+  var path: String {
     "chart." + rawValue.lowercased()
   }
 }

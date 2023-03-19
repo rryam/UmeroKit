@@ -35,7 +35,7 @@ extension UmeroKit {
                         autocorrect: Bool = false,
                         username: String? = nil,
                         language: String? = nil) async throws -> UAlbum {
-    var components = UURLComponents(apiKey: Self.apiKey, path: AlbumEndpoint.getInfo)
+    var components = UURLComponents(apiKey: Self.apiKey, endpoint: AlbumEndpoint.getInfo)
     components.items = [URLQueryItem(name: "album", value: album), URLQueryItem(name: "artist", value: artist)]
 
     let request = UDataRequest<UItemCollection>(url: components.url)
@@ -47,7 +47,7 @@ extension UmeroKit {
                         autocorrect: Bool = false,
                         username: String? = nil,
                         language: String? = nil) async throws -> UAlbum {
-    var components = UURLComponents(apiKey: Self.apiKey, path: AlbumEndpoint.getInfo)
+    var components = UURLComponents(apiKey: Self.apiKey, endpoint: AlbumEndpoint.getInfo)
     components.items = [URLQueryItem(name: "mbid", value: mbid.rawValue)]
 
     let request = UDataRequest<UItemCollection>(url: components.url)
@@ -60,7 +60,7 @@ extension UmeroKit {
                            autocorrect: Bool = false,
                            username: String? = nil,
                            language: String? = nil) async throws -> UTopTags {
-    var components = UURLComponents(apiKey: Self.apiKey, path: AlbumEndpoint.getTopTags)
+    var components = UURLComponents(apiKey: Self.apiKey, endpoint: AlbumEndpoint.getTopTags)
 
     var queryItems: [URLQueryItem] = []
     queryItems.append(URLQueryItem(name: "album", value: album))
@@ -90,7 +90,7 @@ extension UmeroKit {
                          username: String? = nil,
                          language: String? = nil) async throws -> UArtist {
 
-    var components = UURLComponents(apiKey: Self.apiKey, path: ArtistEndpoint.getInfo)
+    var components = UURLComponents(apiKey: Self.apiKey, endpoint: ArtistEndpoint.getInfo)
 
     var queryItems: [URLQueryItem] = []
     queryItems.append(URLQueryItem(name: "artist", value: artist))
@@ -116,7 +116,7 @@ extension UmeroKit {
 extension UmeroKit {
   public func tagInfo(for tag: String,
                       language: String? = nil) async throws -> UTag {
-    var components = UURLComponents(apiKey: Self.apiKey, path: TagEndpoint.getInfo)
+    var components = UURLComponents(apiKey: Self.apiKey, endpoint: TagEndpoint.getInfo)
     
     var queryItems: [URLQueryItem] = []
     queryItems.append(URLQueryItem(name: "tag", value: tag))
@@ -133,7 +133,7 @@ extension UmeroKit {
   }
   
   public func topTags() async throws -> [UTag] {
-    let components = UURLComponents(apiKey: Self.apiKey, path: TagEndpoint.getTopTags)
+    let components = UURLComponents(apiKey: Self.apiKey, endpoint: TagEndpoint.getTopTags)
     let request = UDataRequest<UTopTags>(url: components.url)
     let response = try await request.response()
     return response.toptags.tag

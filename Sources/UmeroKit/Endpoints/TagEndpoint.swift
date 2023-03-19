@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents a set of endpoints for interacting with tag data from the Last.fm API.
-enum TagEndpoint: String, URLEndpoint {
+enum TagEndpoint: String, UURLEndpoint {
   case getInfo
   case getTopArtists
   case getTopAlbums
@@ -17,7 +17,7 @@ enum TagEndpoint: String, URLEndpoint {
   case getSimilar
   case getWeeklyChartList
 
-  var name: String {
+  var path: String {
     "tag." + rawValue.lowercased()
   }
 }

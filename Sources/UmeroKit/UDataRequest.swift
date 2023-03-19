@@ -27,3 +27,23 @@ struct UDataRequest<Model: Codable> {
     return model
   }
 }
+
+public struct UDataPostRequest: Sendable {
+  /// The URL for the data request.
+  var url: URL
+
+  /// Creates a data request with the given URL.
+  public init(url: URL) {
+    self.url = url
+  }
+
+  /// Write data to the last.fm endpoint that
+  /// the URL request defines.
+  public func response() async throws -> (Data, URLResponse) {
+    var urlRequest = URLRequest(url: url)
+    urlRequest.httpMethod = "POST"
+
+    let (data, response) = try await URLSession.shared.data(for: urlRequest)
+    return (data, response)
+  }
+}
