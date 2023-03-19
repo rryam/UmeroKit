@@ -56,7 +56,7 @@ workflows:
     publishing:
       <<: *email_develop
       
-umerokit-update-docs:
+  umerokit-update-docs:
     name: UmeroKit Docs Update Workflow
     environment:
       groups:
