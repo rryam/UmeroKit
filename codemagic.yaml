@@ -55,8 +55,8 @@ workflows:
     publishing:
       <<: *email
 
-  musadorakit-update-docs:
-    name: MusadoraKit Docs Update Workflow
+ umerokit-update-docs:
+    name: UmeroKit Docs Update Workflow
     environment:
       groups:
         - GitHub
@@ -66,14 +66,14 @@ workflows:
           #!/bin/zsh
 
           swift package --allow-writing-to-directory ./docs \
-          generate-documentation --target MusadoraKit \
+          generate-documentation --target UmeroKit \
           --disable-indexing \
           --transform-for-static-hosting \
-          --hosting-base-path MusadoraKit \
+          --hosting-base-path UmeroKit \
           --output-path ./docs
 
           git add .
           git commit -m "[skip ci] Update DocC Documentation"
-          git remote set-url origin https://rudrankriyam:$token@github.com/rryam/MusadoraKit.git
+          git remote set-url origin https://rudrankriyam:$token@github.com/rryam/UmeroKit.git
           git pull --ff-only
           git push origin main
