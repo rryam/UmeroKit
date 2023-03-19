@@ -15,45 +15,32 @@ struct UAuthDataRequest {
 
   private var key: String
 
-  init(username: String, password: String, key: String) {
+  private var secret: String
+
+  init(username: String, password: String, key: String, secret: String) {
     self.username = username
     self.password = password
     self.key = key
+    self.secret = secret
   }
 
-  func response() async throws {
-    var components = UURLComponents(apiKey: key, endpoint: AuthEndpoint.getMobileSession)
+  func response() async throws -> (String, USession) {
+    let endpoint = AuthEndpoint.getMobileSession
+    var components = UURLComponents(apiKey: key, endpoint: endpoint)
 
-    let signature = "api_key\(key)method\(AuthEndpoint.getMobileSession.path)password\(password)username\(username)"
+    let signature = "api_key\(key)method\(endpoint.path)password\(password)username\(username)\(secret)"
     let data = Data(signature.utf8)
-    let hashedSignature = Insecure.MD5.hash(data: data)
+    let hashedSignature = Insecure.MD5.hash(data: data).map { String(format: "%02hhx", $0) }.joined()
 
-    var queryItems: [URLQueryItem] = []
-    queryItems.append(URLQueryItem(name: "username", value: username))
-    queryItems.append(URLQueryItem(name: "password", value: password))
-    queryItems.append(URLQueryItem(name: "api_sig", value: "\(hashedSignature)"))
+    components.items = [
+      URLQueryItem(name: "username", value: username),
+      URLQueryItem(name: "password", value: password),
+      URLQueryItem(name: "api_sig", value: hashedSignature)
+    ]
 
-    components.items = queryItems
-
-    guard let url = components.url else {
-      throw URLError(.badURL)
-    }
-
-    let request = UDataPostRequest(url: url)
+    let request = UDataPostRequest<USession>(url: components.url)
     let response = try await request.response()
 
-    print(try response.0.printJSON())
-  }
-}
-
-extension Data {
-  func printJSON() throws -> String {
-    let json = try JSONSerialization.jsonObject(with: self, options: [])
-    let data = try JSONSerialization.data(withJSONObject: json, options: .prettyPrinted)
-
-    guard let jsonString = String(data: data, encoding: .utf8) else {
-      throw URLError(.cannotDecodeRawData)
-    }
-    return jsonString
+    return (hashedSignature, response)
   }
 }

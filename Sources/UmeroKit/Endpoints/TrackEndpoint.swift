@@ -14,6 +14,8 @@ enum TrackEndpoint: String, UURLEndpoint {
   case getSimilar
   case getTopTags
   case search
+  case updateNowPlaying
+  case scrobble
 
   var path: String {
     "track." + rawValue.lowercased()

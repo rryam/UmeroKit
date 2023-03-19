@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CryptoKit
 
 struct UItemCollection: Codable {
   let album: UAlbum
@@ -15,17 +16,90 @@ public let Umero = UmeroKit.default
 
 public class UmeroKit {
   private static var apiKey: String = ""
+  private static var secret: String = ""
 
   public static var `default`: UmeroKit {
     guard apiKey != "" else {
       fatalError("Provide the API Key.")
     }
+
+    guard secret != "" else {
+      fatalError("Provide the Shared Secret.")
+    }
+
     return UmeroKit()
   }
 
-  public static func configure(withAPIKey apiKey: String) {
+  public static func configure(withAPIKey apiKey: String, sharedSecret: String) {
     Self.apiKey = apiKey
+    Self.secret = sharedSecret
   }
+}
+
+extension UmeroKit {
+  public func updateNowPlaying(track: String, artist: String, username: String, password: String) async throws {
+    let authRequest = UAuthDataRequest(username: username, password: password, key: Self.apiKey, secret: Self.secret)
+    let authResponse = try await authRequest.response()
+
+    let endpoint = TrackEndpoint.updateNowPlaying
+
+    var components = URLComponents()
+    components.scheme = "https"
+    components.host = "ws.audioscrobbler.com"
+    components.path = "/2.0/"
+    components.queryItems = [.init(name: "format", value: "json")]
+
+    guard let url = components.url else {
+      return
+    }
+
+    let signature = "api_key\(Self.apiKey)artist\(artist)method\(endpoint.path)sk\(authResponse.1.session.key)track\(track)\(Self.secret)"
+
+    print(signature)
+    let data = Data(signature.utf8)
+    let hashedSignature = Insecure.MD5.hash(data: data).map { String(format: "%02hhx", $0) }.joined()
+
+    let postData: Data = "method=\(endpoint.path)&track=\(track)&artist=\(artist)&api_sig=\(hashedSignature)&api_key=\(Self.apiKey)&sk=\(authResponse.1.session.key)".data(using: .utf8)!
+
+    let request = UDataPostRequest<UItemCollection>(url: components.url, data: postData)
+    let response = try await request.responseData()
+    print(try response.printJSON())
+  }
+
+  public func scrobble(track: String, artist: String, username: String, password: String) async throws {
+    let authRequest = UAuthDataRequest(username: username, password: password, key: Self.apiKey, secret: Self.secret)
+    let authResponse = try await authRequest.response()
+
+    let endpoint = TrackEndpoint.scrobble
+    let timestamp = Date().timeIntervalSince1970
+
+    var components = URLComponents()
+    components.scheme = "https"
+    components.host = "ws.audioscrobbler.com"
+    components.path = "/2.0/"
+    components.queryItems = [.init(name: "format", value: "json")]
+
+    let signature = "api_key\(Self.apiKey)artist\(artist)method\(endpoint.path)sk\(authResponse.1.session.key)timestamp\(timestamp)track\(track)\(Self.secret)"
+
+    print(signature)
+    let data = Data(signature.utf8)
+    let hashedSignature = Insecure.MD5.hash(data: data).map { String(format: "%02hhx", $0) }.joined()
+
+    let postData: Data = "method=\(endpoint.path)&track=\(track)&artist=\(artist)&api_sig=\(hashedSignature)&api_key=\(Self.apiKey)&sk=\(authResponse.1.session.key)&timestamp=\(timestamp)".data(using: .utf8)!
+
+    let request = UDataPostRequest<UItemCollection>(url: components.url, data: postData)
+    let response = try await request.responseData()
+    print(try response.printJSON())
+  }
+}
+
+struct NowPlayingPostData: Codable {
+  var method: String
+  var track: String
+  var artist: String
+  var api_sig: String
+  var api_key: String
+  var sk: String
 }
 
 // MARK: - ALBUM
@@ -117,21 +191,21 @@ extension UmeroKit {
   public func tagInfo(for tag: String,
                       language: String? = nil) async throws -> UTag {
     var components = UURLComponents(apiKey: Self.apiKey, endpoint: TagEndpoint.getInfo)
-    
+
     var queryItems: [URLQueryItem] = []
     queryItems.append(URLQueryItem(name: "tag", value: tag))
-    
+
     if let language {
       queryItems.append(URLQueryItem(name: "language", value: language))
     }
-    
+
     components.items = queryItems
 
     let request = UDataRequest<UTagInfo>(url: components.url)
     let response = try await request.response()
     return response.tag
   }
-  
+
   public func topTags() async throws -> [UTag] {
     let components = UURLComponents(apiKey: Self.apiKey, endpoint: TagEndpoint.getTopTags)
     let request = UDataRequest<UTopTags>(url: components.url)
