@@ -7,6 +7,23 @@
 
 import Foundation
 
+struct UURLPostComponents {
+  private var components: URLComponents
+
+  public init() {
+    self.components = URLComponents()
+    components.scheme = "https"
+    components.host = "ws.audioscrobbler.com"
+    components.path = "/2.0"
+    components.queryItems = [URLQueryItem(name: "format", value: "json")]
+  }
+
+  public var url: URL? {
+    components.url
+  }
+}
+
+
 struct UURLComponents {
   private var components: URLComponents
   private var queryItems: [URLQueryItem]

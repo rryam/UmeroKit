@@ -26,16 +26,29 @@ struct UAuthDataRequest {
 
   func response() async throws -> USession.Session {
     let endpoint = AuthEndpoint.getMobileSession
-    var components = UURLComponents(apiKey: apiKey, endpoint: endpoint)
+    var components = UURLComponents(apiKey: self.apiKey, endpoint: endpoint)
+    var signature = ""
 
-    let hashedPassword = Insecure.MD5.hash(data: Data(password.utf8))
+    var signatureParameters = [
+      "method": endpoint.path,
+      "api_key": apiKey,
+      "password": password,
+      "username": username
+    ]
 
-    let signature = "api_key\(apiKey)method\(endpoint.path)password\(hashedPassword)username\(username)\(secret)"
+    for key in signatureParameters.keys.sorted() {
+      signature += "\(key)\(signatureParameters[key]!)"
+    }
+
+    signature += secret
+
     let data = Data(signature.utf8)
     let hashedSignature = Insecure.MD5.hash(data: data).map { String(format: "%02hhx", $0) }.joined()
 
-    let password = hashedPassword.map { String(format: "%02hhx", $0) }.joined()
-    let parameters = ["username": username, "password": password, "api_sig": hashedSignature]
+    let parameters = [
+      "username": username,
+      "password": password,
+      "api_sig": hashedSignature]
 
     components.items = parameters.map { URLQueryItem(name: $0, value: $1) }
 

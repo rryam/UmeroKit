@@ -41,32 +41,40 @@ struct UScrobblingRequest {
   }
 
   func response() async throws {
-    var components = UURLComponents(apiKey: apiKey, endpoint: endpoint)
+    let components = UURLPostComponents()
     var signature = ""
-    var postData: Data
-    let timestamp = Date().timeIntervalSince1970
+    var postData: Data? = nil
+
+    var parameters = [
+      "method": endpoint.path,
+      "api_key": apiKey,
+      "artist": artist,
+      "track": track,
+      "sk": sessionKey
+    ]
 
     switch endpoint {
-      case .updateNowPlaying:
-        signature = "api_key\(apiKey)artist\(artist)method\(endpoint.path)sk\(sessionKey)track\(track)\(secret)"
+      case .updateNowPlaying: ()
       case .scrobble:
-        signature = "api_key\(apiKey)artist\(artist)method\(endpoint.path)sk\(sessionKey)timestamp\(timestamp)track\(track)\(secret)"
+        parameters["timestamp"] = String(Int(Date().timeIntervalSince1970))
     }
 
-    print(signature)
+    for key in parameters.keys.sorted() {
+      signature += "\(key)\(parameters[key]!)"
+    }
+
+    signature += secret
+
     let data = Data(signature.utf8)
     let hashedSignature = Insecure.MD5.hash(data: data).map { String(format: "%02hhx", $0) }.joined()
 
-    switch endpoint {
-      case .updateNowPlaying:
-      postData = "method=\(endpoint.path)&track=\(track)&artist=\(artist)&api_sig=\(hashedSignature)&api_key=\(apiKey)&sk=\(sessionKey)".data(using: .utf8)!
-      case .scrobble:
-        postData = "method=\(endpoint.path)&track=\(track)&artist=\(artist)&api_sig=\(hashedSignature)&api_key=\(apiKey)&sk=\(sessionKey)&timestamp=\(timestamp)".data(using: .utf8)!
-    }
+    parameters["api_sig"] = hashedSignature
+
+    postData = parameters.map { "\($0.key)=\($0.value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)" }.joined(separator: "&").data(using: .utf8)
 
     let request = UDataPostRequest<UItemCollection>(url: components.url, data: postData)
     let response = try await request.responseData()
     print(try response.printJSON())
-
+    
   }
 }
