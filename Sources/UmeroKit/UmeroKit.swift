@@ -17,6 +17,9 @@ public class UmeroKit {
   private static var apiKey: String = ""
   private static var secret: String = ""
 
+  private static var username: String = ""
+  private static var password: String = ""
+
   public static var `default`: UmeroKit {
     guard apiKey != "" else {
       fatalError("Provide the API Key.")
@@ -33,19 +36,40 @@ public class UmeroKit {
     Self.apiKey = apiKey
     Self.secret = sharedSecret
   }
+
+  public static func configureUser(username: String, password: String) {
+    Self.username = username
+    Self.password = password
+  }
 }
 
 extension UmeroKit {
-  public func updateNowPlaying(track: String, artist: String, username: String, password: String) async throws {
-    let authRequest = UAuthDataRequest(username: username, password: password, apiKey: Self.apiKey, secret: Self.secret)
+  public func updateNowPlaying(track: String, artist: String) async throws {
+    guard Self.username != "" else {
+      throw NSError(domain: "Provide the username.", code: 0)
+    }
+
+    guard Self.password != "" else {
+      throw NSError(domain: "Provide the password.", code: 0)
+    }
+
+    let authRequest = UAuthDataRequest(username: Self.username, password: Self.password, apiKey: Self.apiKey, secret: Self.secret)
     let authResponse = try await authRequest.response()
 
     let request = UScrobblingRequest(track: track, artist: artist, endpoint: .updateNowPlaying, apiKey: Self.apiKey, sessionKey: authResponse.key, secret: Self.secret)
     let response = try await request.response()
   }
 
-  public func scrobble(track: String, artist: String, username: String, password: String) async throws {
-    let authRequest = UAuthDataRequest(username: username, password: password, apiKey: Self.apiKey, secret: Self.secret)
+  public func scrobble(track: String, artist: String) async throws {
+    guard Self.username != "" else {
+      throw NSError(domain: "Provide the username.", code: 0)
+    }
+
+    guard Self.password != "" else {
+      throw NSError(domain: "Provide the password.", code: 0)
+    }
+
+    let authRequest = UAuthDataRequest(username: Self.username, password: Self.password, apiKey: Self.apiKey, secret: Self.secret)
     let authResponse = try await authRequest.response()
     let request = UScrobblingRequest(track: track, artist: artist, endpoint: .scrobble, apiKey: Self.apiKey, sessionKey: authResponse.key, secret: Self.secret)
     let response = try await request.response()
