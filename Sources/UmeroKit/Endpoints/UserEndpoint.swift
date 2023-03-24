@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents a set of endpoints for interacting with user data from the Last.fm API.
-enum UserEndpoint: String, URLEndpoint {
+enum UserEndpoint: String, UURLEndpoint {
   case getFriends
   case getPersonalTags
   case getRecentTracks
@@ -24,7 +24,7 @@ enum UserEndpoint: String, URLEndpoint {
   case getWeeklyChartList
   case getWeeklyTrackChart
 
-  var name: String {
+  var path: String {
     "user." + rawValue.lowercased()
   }
 }

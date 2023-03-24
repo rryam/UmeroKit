@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents a set of endpoints for interacting with artist data from the Last.fm API.
-enum ArtistEndpoint: String, URLEndpoint {
+enum ArtistEndpoint: String, UURLEndpoint {
   case getInfo
   case getTags
   case getTopTags
@@ -17,7 +17,7 @@ enum ArtistEndpoint: String, URLEndpoint {
   case search
   case getSimilar
 
-  var name: String {
+  var path: String {
     "artist." + rawValue.lowercased()
   }
 }

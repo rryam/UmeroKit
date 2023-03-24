@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents a set of endpoints for interacting with album data from the Last.fm API.
-enum AlbumEndpoint: String, URLEndpoint {
+enum AlbumEndpoint: String, UURLEndpoint {
 
   /// Get the metadata and tracklist for an album on Last.fm using the album name or a musicbrainz id.
   case getInfo
@@ -22,7 +22,7 @@ enum AlbumEndpoint: String, URLEndpoint {
   /// Search for an album by name. Returns album matches sorted by relevance.
   case search
 
-  var name: String {
+  var path: String {
     "album." + rawValue.lowercased()
   }
 }

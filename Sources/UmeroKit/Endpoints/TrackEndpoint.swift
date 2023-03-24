@@ -8,14 +8,15 @@
 import Foundation
 
 /// Represents a set of endpoints for interacting with track data from the Last.fm API.
-enum TrackEndpoint: String, URLEndpoint {
+enum TrackEndpoint: String, UURLEndpoint {
   case getInfo
   case getTags
   case getSimilar
   case getTopTags
   case search
 
-  var name: String {
+
+  var path: String {
     "track." + rawValue.lowercased()
   }
 }
