@@ -75,6 +75,16 @@ extension UmeroKit {
     let request = UScrobblingRequest(track: track, artist: artist, endpoint: .scrobble, apiKey: Self.apiKey, sessionKey: authResponse.key, secret: Self.secret)
     let response = try await request.response()
   }
+  
+  public func love(track: String, artist: String) async throws {
+    guard Self.username != "" else { throw NSError(domain: "Provide the username.", code: 0) }
+    guard Self.password != "" else { throw NSError(domain: "Provide the password.", code: 0) }
+    let authRequest = UAuthDataRequest(username: Self.username, password: Self.password, apiKey: Self.apiKey, secret: Self.secret)
+    let authResponse = try await authRequest.response()
+    let request = ULoveRequest(track: track, artist: artist, apiKey: Self.apiKey, sessionKey: authResponse.key, secret: Self.secret)
+    let response = try await request.response()
+  }
+    
 }
 
 struct NowPlayingPostData: Codable {
