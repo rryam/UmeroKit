@@ -85,6 +85,15 @@ extension UmeroKit {
     let response = try await request.response()
   }
     
+  public func checkLogin(username: String, password: String) async -> Bool {
+    do {
+      let authRequest = UAuthDataRequest(username: username, password: password, apiKey: Self.apiKey, secret: Self.secret)
+      let authResponse = try await authRequest.response()
+      return true
+    } catch {
+        return false
+    }
+  }
 }
 
 struct NowPlayingPostData: Codable {
