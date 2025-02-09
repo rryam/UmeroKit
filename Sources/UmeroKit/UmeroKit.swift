@@ -57,8 +57,8 @@ extension UmeroKit {
     let authRequest = UAuthDataRequest(username: Self.username, password: Self.password, apiKey: Self.apiKey, secret: Self.secret)
     let authResponse = try await authRequest.response()
 
-    let request = UScrobblingRequest(track: track, artist: artist, endpoint: .updateNowPlaying, apiKey: Self.apiKey, sessionKey: authResponse.key, secret: Self.secret)
-    let response = try await request.response()
+      let request = UScrobblingRequest(track: track, artist: artist, endpoint: .updateNowPlaying, apiKey: Self.apiKey, sessionKey: authResponse.key, secret: Self.secret)
+    _ = try await request.response()
   }
 
   public func scrobble(track: String, artist: String) async throws {
@@ -72,8 +72,8 @@ extension UmeroKit {
 
     let authRequest = UAuthDataRequest(username: Self.username, password: Self.password, apiKey: Self.apiKey, secret: Self.secret)
     let authResponse = try await authRequest.response()
-    let request = UScrobblingRequest(track: track, artist: artist, endpoint: .scrobble, apiKey: Self.apiKey, sessionKey: authResponse.key, secret: Self.secret)
-    let response = try await request.response()
+      let request = UScrobblingRequest(track: track, artist: artist, endpoint: .scrobble, apiKey: Self.apiKey, sessionKey: authResponse.key, secret: Self.secret)
+      _ = try await request.response()
   }
   
   public func love(track: String, artist: String) async throws {
@@ -81,15 +81,17 @@ extension UmeroKit {
     guard Self.password != "" else { throw NSError(domain: "Provide the password.", code: 0) }
     let authRequest = UAuthDataRequest(username: Self.username, password: Self.password, apiKey: Self.apiKey, secret: Self.secret)
     let authResponse = try await authRequest.response()
-    let request = ULoveRequest(track: track, artist: artist, apiKey: Self.apiKey, sessionKey: authResponse.key, secret: Self.secret)
-    let response = try await request.response()
+      let request = ULoveRequest(track: track, artist: artist, apiKey: Self.apiKey, sessionKey: authResponse.key, secret: Self.secret)
+    _ = try await request.response()
   }
     
-  public func checkLogin(username: String, password: String) async throws -> Bool {
-      let authRequest = UAuthDataRequest(username: username, password: password, apiKey: Self.apiKey, secret: Self.secret)
-      let authResponse = try await authRequest.response()
-      return true
-  }
+    public func checkLogin(username: String, password: String) async throws {
+        let authRequest = UAuthDataRequest(username: username,
+                                           password: password,
+                                           apiKey: Self.apiKey,
+                                           secret: Self.secret)
+        _ = try await authRequest.response()
+    }
 }
 
 struct NowPlayingPostData: Codable {

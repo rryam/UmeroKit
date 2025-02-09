@@ -33,11 +33,11 @@ public struct UDataPostRequest<Model: Codable>: Sendable {
   var url: URL?
   var data: Data?
 
+
   init(url: URL?, data: Data? = nil) {
     self.url = url
     self.data = data
   }
-
 
   /// Write data to the last.fm endpoint that
   /// the URL request defines.
@@ -57,6 +57,7 @@ public struct UDataPostRequest<Model: Codable>: Sendable {
     let decoder = JSONDecoder()
     decoder.dateDecodingStrategy = .iso8601
     let model = try decoder.decode(Model.self, from: urlRequestData)
+
     return model
   }
 
