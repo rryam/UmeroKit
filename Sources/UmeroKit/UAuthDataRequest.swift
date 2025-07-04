@@ -29,7 +29,7 @@ struct UAuthDataRequest {
     var components = UURLComponents(apiKey: self.apiKey, endpoint: endpoint)
     var signature = ""
 
-    var signatureParameters = [
+    let signatureParameters = [
       "method": endpoint.path,
       "api_key": apiKey,
       "password": password,
@@ -42,8 +42,7 @@ struct UAuthDataRequest {
 
     signature += secret
 
-    let data = Data(signature.utf8)
-    let hashedSignature = Insecure.MD5.hash(data: data).map { String(format: "%02hhx", $0) }.joined()
+    let hashedSignature = MD5Helper.hash(signature)
 
     let parameters = [
       "username": username,

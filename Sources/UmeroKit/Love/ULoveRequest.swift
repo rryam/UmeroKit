@@ -49,8 +49,7 @@ struct ULoveRequest {
 
     signature += secret
 
-    let data = Data(signature.utf8)
-    let hashedSignature = Insecure.MD5.hash(data: data).map { String(format: "%02hhx", $0) }.joined()
+    let hashedSignature = MD5Helper.hash(signature)
 
     parameters["api_sig"] = hashedSignature
 
