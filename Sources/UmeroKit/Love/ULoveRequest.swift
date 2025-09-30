@@ -56,8 +56,6 @@ struct ULoveRequest {
     postData = parameters.map { "\($0.key)=\($0.value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)" }.joined(separator: "&").data(using: .utf8)
 
     let request = UDataPostRequest<UItemCollection>(url: components.url, data: postData)
-    let response = try await request.responseData()
-    print(try response.printJSON())
-    
+    _ = try await request.responseData()
   }
 }

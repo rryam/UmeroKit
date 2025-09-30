@@ -1,0 +1,35 @@
+version: 1
+
+builder:
+  configs:
+    - documentation_targets: [UmeroKit]
+
+targets:
+  - name: UmeroKit
+    type: library
+
+builds:
+  - platform: iOS
+    configuration: release
+    scheme: UmeroKit
+  - platform: macOS
+    configuration: release
+    scheme: UmeroKit
+  - platform: tvOS
+    configuration: release
+    scheme: UmeroKit
+  - platform: watchOS
+    configuration: release
+    scheme: UmeroKit
+
+swift_versions:
+  - "5.5"
+  - "5.9"
+  - "5.10"
+  - "6.0"
+
+platforms:
+  - iOS: 13.0
+  - macOS: 11.0
+  - tvOS: 13.0
+  - watchOS: 6.0

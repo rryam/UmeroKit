@@ -61,13 +61,13 @@ extension UAlbum: Codable {
     if let playcount = Double(playcountString) {
       self.playcount = playcount
     } else {
-      throw NSError(domain: "Playcount is not of the type double for \(name)", code: 0)
+      throw UmeroKitError.invalidDataFormat("Playcount is not a valid number for album '\(name)'")
     }
 
     if let listeners = Double(listenersString) {
       self.listeners = listeners
     } else {
-      throw NSError(domain: "Listeners is not of the type double for \(name)", code: 0)
+      throw UmeroKitError.invalidDataFormat("Listeners is not a valid number for album '\(name)'")
     }
   }
 }

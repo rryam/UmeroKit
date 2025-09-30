@@ -1,17 +1,20 @@
-import XCTest
+import Testing
+import Foundation
 import CryptoKit
 @testable import UmeroKit
 
-final class LastFmSignatureTests: XCTestCase {
-    
-    func testLastFmAuthSignatureGeneration() {
+@Suite("Last.fm Signature Tests")
+struct LastFmSignatureTests {
+
+    @Test("Last.fm auth signature generation")
+    func lastFmAuthSignatureGeneration() {
         // Test the exact signature generation as used in UAuthDataRequest
         let apiKey = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
         let secret = "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
         let username = "testuser"
         let password = "testpassword"
         let method = "auth.getMobileSession"
-        
+
         // This is exactly how UAuthDataRequest builds the signature
         let signatureParameters = [
             "method": method,
@@ -19,26 +22,27 @@ final class LastFmSignatureTests: XCTestCase {
             "password": password,
             "username": username
         ]
-        
+
         var signature = ""
         for key in signatureParameters.keys.sorted() {
             signature += "\(key)\(signatureParameters[key]!)"
         }
         signature += secret
-        
+
         // Generate hash using our MD5Helper
         let hash = MD5Helper.hash(signature)
-        
+
         // Also generate using the original inline method to ensure they match
         let data = Data(signature.utf8)
         let originalHash = Insecure.MD5.hash(data: data).map { String(format: "%02hhx", $0) }.joined()
-        
-        XCTAssertEqual(hash, originalHash, "MD5Helper must produce identical output to original implementation")
-        XCTAssertEqual(hash.count, 32, "MD5 hash must be 32 characters")
-        XCTAssertTrue(hash.allSatisfy { $0.isHexDigit }, "MD5 hash must be all hex digits")
+
+        #expect(hash == originalHash, "MD5Helper must produce identical output to original implementation")
+        #expect(hash.count == 32, "MD5 hash must be 32 characters")
+        #expect(hash.allSatisfy { $0.isHexDigit }, "MD5 hash must be all hex digits")
     }
-    
-    func testScrobblingSignatureGeneration() {
+
+    @Test("Scrobbling signature generation")
+    func scrobblingSignatureGeneration() {
         // Test scrobbling signature (includes timestamp)
         let apiKey = "testApiKey"
         let secret = "testSecret"
@@ -46,8 +50,8 @@ final class LastFmSignatureTests: XCTestCase {
         let artist = "Test Artist"
         let sessionKey = "testSessionKey"
         let timestamp = "1234567890"
-        
-        var parameters = [
+
+        let parameters = [
             "method": "track.scrobble",
             "api_key": apiKey,
             "artist": artist,
@@ -55,42 +59,38 @@ final class LastFmSignatureTests: XCTestCase {
             "sk": sessionKey,
             "timestamp": timestamp
         ]
-        
+
         var signature = ""
         for key in parameters.keys.sorted() {
             signature += "\(key)\(parameters[key]!)"
         }
         signature += secret
-        
+
         let hash = MD5Helper.hash(signature)
-        
+
         // Verify format
-        XCTAssertEqual(hash.count, 32)
-        XCTAssertTrue(hash.allSatisfy { $0.isHexDigit })
+        #expect(hash.count == 32)
+        #expect(hash.allSatisfy { $0.isHexDigit })
     }
-    
-    func testSpecialCharactersInSignature() {
-        // Test with special characters that might appear in track/artist names
-        let testCases = [
-            "Test & Artist",
-            "Test's Track",
-            "Track (feat. Someone)",
-            "Artist/Track",
-            "Test + Plus",
-            "Ümläüts"
-        ]
-        
-        for testString in testCases {
-            let hash = MD5Helper.hash(testString)
-            
-            // Verify the hash is valid
-            XCTAssertEqual(hash.count, 32, "Hash for '\(testString)' should be 32 chars")
-            XCTAssertTrue(hash.allSatisfy { $0.isHexDigit }, "Hash for '\(testString)' should be all hex")
-            
-            // Compare with original implementation
-            let data = Data(testString.utf8)
-            let originalHash = Insecure.MD5.hash(data: data).map { String(format: "%02hhx", $0) }.joined()
-            XCTAssertEqual(hash, originalHash, "Hash for '\(testString)' must match original")
-        }
+
+    @Test("Special characters in signature", arguments: [
+        "Test & Artist",
+        "Test's Track",
+        "Track (feat. Someone)",
+        "Artist/Track",
+        "Test + Plus",
+        "Ümläüts"
+    ])
+    func specialCharactersInSignature(testString: String) {
+        let hash = MD5Helper.hash(testString)
+
+        // Verify the hash is valid
+        #expect(hash.count == 32, "Hash for '\(testString)' should be 32 chars")
+        #expect(hash.allSatisfy { $0.isHexDigit }, "Hash for '\(testString)' should be all hex")
+
+        // Compare with original implementation
+        let data = Data(testString.utf8)
+        let originalHash = Insecure.MD5.hash(data: data).map { String(format: "%02hhx", $0) }.joined()
+        #expect(hash == originalHash, "Hash for '\(testString)' must match original")
     }
 }

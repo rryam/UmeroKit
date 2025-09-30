@@ -16,7 +16,7 @@ struct UDataRequest<Model: Codable> {
 
   func response() async throws -> Model {
     guard let url else {
-      throw URLError(.badURL)
+      throw UmeroKitError.invalidURL
     }
 
     let (data, _) = try await URLSession.shared.data(from: url)
@@ -43,7 +43,7 @@ public struct UDataPostRequest<Model: Codable>: Sendable {
   /// the URL request defines.
   public func response() async throws -> Model {
     guard let url else {
-      throw URLError(.badURL)
+      throw UmeroKitError.invalidURL
     }
 
     var urlRequest = URLRequest(url: url)
@@ -63,7 +63,7 @@ public struct UDataPostRequest<Model: Codable>: Sendable {
 
   public func responseData() async throws -> Data {
     guard let url else {
-      throw URLError(.badURL)
+      throw UmeroKitError.invalidURL
     }
 
     var urlRequest = URLRequest(url: url)

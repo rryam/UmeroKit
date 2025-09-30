@@ -53,12 +53,12 @@ struct UAuthDataRequest {
 
     let request = UDataPostRequest<USession>(url: components.url)
     let response = try await request.response()
-      
+
     // Check if both error and message are present
     if let errorCode = response.error, let errorMessage = response.message {
-        throw NSError(domain: "UmeroKit", code: errorCode, userInfo: [NSLocalizedDescriptionKey: errorMessage])
+        throw UmeroKitError.authenticationFailed(code: errorCode, message: errorMessage)
     }
-      
+
     return response.session
   }
 }

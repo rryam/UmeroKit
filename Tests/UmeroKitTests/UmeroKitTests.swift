@@ -1,11 +1,10 @@
-import XCTest
+import Testing
 @testable import UmeroKit
 
-final class UmeroKitTests: XCTestCase {
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        XCTAssertEqual("Testing, ok?", "Testing, ok?")
+@Suite("UmeroKit Basic Tests")
+struct UmeroKitTests {
+    @Test("Basic test")
+    func basicTest() {
+        #expect("Testing, ok?" == "Testing, ok?")
     }
 }

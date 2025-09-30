@@ -12,84 +12,66 @@ struct UItemCollection: Codable {
   let album: UAlbum
 }
 
-public let Umero = UmeroKit.default
+public struct UmeroKit: Sendable {
+  private let apiKey: String
+  private let secret: String
+  private let username: String?
+  private let password: String?
 
-public class UmeroKit {
-  private static var apiKey: String = ""
-  private static var secret: String = ""
-
-  private static var username: String = ""
-  private static var password: String = ""
-
-  public static var `default`: UmeroKit {
-    guard apiKey != "" else {
-      fatalError("Provide the API Key.")
-    }
-
-    guard secret != "" else {
-      fatalError("Provide the Shared Secret.")
-    }
-
-    return UmeroKit()
-  }
-
-  public static func configure(withAPIKey apiKey: String, sharedSecret: String) {
-    Self.apiKey = apiKey
-    Self.secret = sharedSecret
-  }
-
-  public static func configureUser(username: String, password: String) {
-    Self.username = username
-    Self.password = password
+  public init(apiKey: String, secret: String, username: String? = nil, password: String? = nil) {
+    self.apiKey = apiKey
+    self.secret = secret
+    self.username = username
+    self.password = password
   }
 }
 
 extension UmeroKit {
   public func updateNowPlaying(track: String, artist: String) async throws {
-    guard Self.username != "" else {
-      throw NSError(domain: "Provide the username.", code: 0)
-    }
+    guard !apiKey.isEmpty else { throw UmeroKitError.missingAPIKey }
+    guard !secret.isEmpty else { throw UmeroKitError.missingSecret }
+    guard let username else { throw UmeroKitError.missingUsername }
+    guard let password else { throw UmeroKitError.missingPassword }
 
-    guard Self.password != "" else {
-      throw NSError(domain: "Provide the password.", code: 0)
-    }
-
-    let authRequest = UAuthDataRequest(username: Self.username, password: Self.password, apiKey: Self.apiKey, secret: Self.secret)
+    let authRequest = UAuthDataRequest(username: username, password: password, apiKey: apiKey, secret: secret)
     let authResponse = try await authRequest.response()
 
-      let request = UScrobblingRequest(track: track, artist: artist, endpoint: .updateNowPlaying, apiKey: Self.apiKey, sessionKey: authResponse.key, secret: Self.secret)
+      let request = UScrobblingRequest(track: track, artist: artist, endpoint: .updateNowPlaying, apiKey: apiKey, sessionKey: authResponse.key, secret: secret)
     _ = try await request.response()
   }
 
   public func scrobble(track: String, artist: String) async throws {
-    guard Self.username != "" else {
-      throw NSError(domain: "Provide the username.", code: 0)
-    }
+    guard !apiKey.isEmpty else { throw UmeroKitError.missingAPIKey }
+    guard !secret.isEmpty else { throw UmeroKitError.missingSecret }
+    guard let username else { throw UmeroKitError.missingUsername }
+    guard let password else { throw UmeroKitError.missingPassword }
 
-    guard Self.password != "" else {
-      throw NSError(domain: "Provide the password.", code: 0)
-    }
-
-    let authRequest = UAuthDataRequest(username: Self.username, password: Self.password, apiKey: Self.apiKey, secret: Self.secret)
+    let authRequest = UAuthDataRequest(username: username, password: password, apiKey: apiKey, secret: secret)
     let authResponse = try await authRequest.response()
-      let request = UScrobblingRequest(track: track, artist: artist, endpoint: .scrobble, apiKey: Self.apiKey, sessionKey: authResponse.key, secret: Self.secret)
+      let request = UScrobblingRequest(track: track, artist: artist, endpoint: .scrobble, apiKey: apiKey, sessionKey: authResponse.key, secret: secret)
       _ = try await request.response()
   }
-  
+
   public func love(track: String, artist: String) async throws {
-    guard Self.username != "" else { throw NSError(domain: "Provide the username.", code: 0) }
-    guard Self.password != "" else { throw NSError(domain: "Provide the password.", code: 0) }
-    let authRequest = UAuthDataRequest(username: Self.username, password: Self.password, apiKey: Self.apiKey, secret: Self.secret)
+    guard !apiKey.isEmpty else { throw UmeroKitError.missingAPIKey }
+    guard !secret.isEmpty else { throw UmeroKitError.missingSecret }
+    guard let username else { throw UmeroKitError.missingUsername }
+    guard let password else { throw UmeroKitError.missingPassword }
+
+    let authRequest = UAuthDataRequest(username: username, password: password, apiKey: apiKey, secret: secret)
     let authResponse = try await authRequest.response()
-      let request = ULoveRequest(track: track, artist: artist, apiKey: Self.apiKey, sessionKey: authResponse.key, secret: Self.secret)
+      let request = ULoveRequest(track: track, artist: artist, apiKey: apiKey, sessionKey: authResponse.key, secret: secret)
     _ = try await request.response()
   }
-    
+
     public func checkLogin(username: String, password: String) async throws {
+        guard !apiKey.isEmpty else { throw UmeroKitError.missingAPIKey }
+        guard !secret.isEmpty else { throw UmeroKitError.missingSecret }
+
         let authRequest = UAuthDataRequest(username: username,
                                            password: password,
-                                           apiKey: Self.apiKey,
-                                           secret: Self.secret)
+                                           apiKey: apiKey,
+                                           secret: secret)
         _ = try await authRequest.response()
     }
 }
@@ -110,7 +92,7 @@ extension UmeroKit {
                         autocorrect: Bool = false,
                         username: String? = nil,
                         language: String? = nil) async throws -> UAlbum {
-    var components = UURLComponents(apiKey: Self.apiKey, endpoint: AlbumEndpoint.getInfo)
+    var components = UURLComponents(apiKey: apiKey, endpoint: AlbumEndpoint.getInfo)
     components.items = [URLQueryItem(name: "album", value: album), URLQueryItem(name: "artist", value: artist)]
 
     let request = UDataRequest<UItemCollection>(url: components.url)
@@ -122,7 +104,7 @@ extension UmeroKit {
                         autocorrect: Bool = false,
                         username: String? = nil,
                         language: String? = nil) async throws -> UAlbum {
-    var components = UURLComponents(apiKey: Self.apiKey, endpoint: AlbumEndpoint.getInfo)
+    var components = UURLComponents(apiKey: apiKey, endpoint: AlbumEndpoint.getInfo)
     components.items = [URLQueryItem(name: "mbid", value: mbid.rawValue)]
 
     let request = UDataRequest<UItemCollection>(url: components.url)
@@ -135,7 +117,7 @@ extension UmeroKit {
                            autocorrect: Bool = false,
                            username: String? = nil,
                            language: String? = nil) async throws -> UTopTags {
-    var components = UURLComponents(apiKey: Self.apiKey, endpoint: AlbumEndpoint.getTopTags)
+    var components = UURLComponents(apiKey: apiKey, endpoint: AlbumEndpoint.getTopTags)
 
     var queryItems: [URLQueryItem] = []
     queryItems.append(URLQueryItem(name: "album", value: album))
@@ -165,7 +147,7 @@ extension UmeroKit {
                          username: String? = nil,
                          language: String? = nil) async throws -> UArtist {
 
-    var components = UURLComponents(apiKey: Self.apiKey, endpoint: ArtistEndpoint.getInfo)
+    var components = UURLComponents(apiKey: apiKey, endpoint: ArtistEndpoint.getInfo)
 
     var queryItems: [URLQueryItem] = []
     queryItems.append(URLQueryItem(name: "artist", value: artist))
@@ -191,7 +173,7 @@ extension UmeroKit {
 extension UmeroKit {
   public func tagInfo(for tag: String,
                       language: String? = nil) async throws -> UTag {
-    var components = UURLComponents(apiKey: Self.apiKey, endpoint: TagEndpoint.getInfo)
+    var components = UURLComponents(apiKey: apiKey, endpoint: TagEndpoint.getInfo)
 
     var queryItems: [URLQueryItem] = []
     queryItems.append(URLQueryItem(name: "tag", value: tag))
@@ -208,7 +190,7 @@ extension UmeroKit {
   }
 
   public func topTags() async throws -> [UTag] {
-    let components = UURLComponents(apiKey: Self.apiKey, endpoint: TagEndpoint.getTopTags)
+    let components = UURLComponents(apiKey: apiKey, endpoint: TagEndpoint.getTopTags)
     let request = UDataRequest<UTopTags>(url: components.url)
     let response = try await request.response()
     return response.toptags.tag
@@ -236,7 +218,7 @@ extension UmeroKit {
   /// - Returns: A `UChartArtists` object containing the top charting artists.
   public func topChartArtists(limit: Int = 50, page: Int = 1) async throws -> UChartArtists {
     let request = UChartRequest<UChartArtists>(for: .getTopArtists, limit: limit, page: page)
-    let response = try await request.response(with: Self.apiKey)
+    let response = try await request.response(with: apiKey)
     return response
   }
 
@@ -258,7 +240,7 @@ extension UmeroKit {
   /// - Returns: A `UChartTags` object containing the top charting tags.
   public func topChartTags(limit: Int = 50, page: Int = 1) async throws -> UChartTags {
     let request = UChartRequest<UChartTags>(for: .getTopTags, limit: limit, page: page)
-    let response = try await request.response(with: Self.apiKey)
+    let response = try await request.response(with: apiKey)
     return response
   }
 
@@ -280,7 +262,7 @@ extension UmeroKit {
   /// - Returns: A `UChartTracks` object containing the top charting tracks.
   public func topChartTracks(limit: Int = 50, page: Int = 1) async throws -> UChartTracks {
     let request = UChartRequest<UChartTracks>(for: .getTopTracks, limit: limit, page: page)
-    let response = try await request.response(with: Self.apiKey)
+    let response = try await request.response(with: apiKey)
     return response
   }
 }
@@ -308,7 +290,7 @@ extension UmeroKit {
   /// - Returns: A `UGeoArtists` object containing the most popular artists.
   public func topArtists(for country: String, limit: Int = 50, page: Int = 1) async throws -> UGeoArtists {
     let request = UGeoRequest<UGeoArtists>(for: country, endpoint: .getTopArtists, limit: limit, page: page)
-    let response = try await request.response(with: Self.apiKey)
+    let response = try await request.response(with: apiKey)
     return response
   }
 
@@ -332,7 +314,7 @@ extension UmeroKit {
   /// - Returns: A `UGeoTracks` object containing the most popular tracks.
   public func topTracks(for country: String, limit: Int = 50, page: Int = 1) async throws -> UGeoTracks {
     let request = UGeoRequest<UGeoTracks>(for: country, endpoint: .getTopTracks, limit: limit, page: page)
-    let response = try await request.response(with: Self.apiKey)
+    let response = try await request.response(with: apiKey)
     return response
   }
 }
