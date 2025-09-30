@@ -27,12 +27,15 @@ public struct UTag: Identifiable, Codable {
     self.total = try container.decodeIfPresent(Int.self, forKey: .total)
     self.wiki = try container.decodeIfPresent(UWiki.self, forKey: .wiki)
 
-    let reachString = try container.decode(String.self, forKey: .reach)
+    let reachString = try container.decodeIfPresent(String.self, forKey: .reach)
 
-    if let reach = Double(reachString) {
+    if let reachString, !reachString.isEmpty {
+      guard let reach = Double(reachString) else {
+        throw UmeroKitError.invalidDataFormat("Reach is not a valid number for tag '\(name)'")
+      }
       self.reach = reach
     } else {
-      throw NSError(domain: "Reach is not of the type Double for \(name)", code: 0)
+      self.reach = nil
     }
   }
 }

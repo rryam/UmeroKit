@@ -44,23 +44,29 @@ extension UArtist: Codable {
     let streamableString = try container.decodeIfPresent(String.self, forKey: .streamable)
     let playcountString = try container.decodeIfPresent(String.self, forKey: .playcount)
     let listenersString = try container.decodeIfPresent(String.self, forKey: .listeners)
-    let mbid = try container.decode(String.self, forKey: .mbid)
+    let mbid = try container.decodeIfPresent(String.self, forKey: .mbid)
 
-    self.mbid = UItemID(mbid)
+    self.mbid = mbid.map { UItemID(rawValue: $0) }
 
-    if let streamable = (streamableString as? NSString)?.boolValue {
-      self.streamable = streamable
+    if let streamableString, !streamableString.isEmpty {
+      self.streamable = NSString(string: streamableString).boolValue
     } else {
       self.streamable = nil
     }
 
-    if let playcountString, let playcount = Double(playcountString) {
+    if let playcountString, !playcountString.isEmpty {
+      guard let playcount = Double(playcountString) else {
+        throw UmeroKitError.invalidDataFormat("Playcount is not a valid number for artist '\(name)'")
+      }
       self.playcount = playcount
     } else {
       self.playcount = nil
     }
 
-    if let listenersString, let listeners = Double(listenersString) {
+    if let listenersString, !listenersString.isEmpty {
+      guard let listeners = Double(listenersString) else {
+        throw UmeroKitError.invalidDataFormat("Listeners is not a valid number for artist '\(name)'")
+      }
       self.listeners = listeners
     } else {
       self.listeners = nil

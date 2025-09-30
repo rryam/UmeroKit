@@ -52,22 +52,28 @@ extension UAlbum: Codable {
     self.url = try container.decode(URL.self, forKey: .url)
     self.wiki = try container.decode(UWiki.self, forKey: .wiki)
 
-    let playcountString = try container.decode(String.self, forKey: .playcount)
-    let listenersString = try container.decode(String.self, forKey: .listeners)
-    let mbid = try container.decode(String.self, forKey: .mbid)
+    let playcountString = try container.decodeIfPresent(String.self, forKey: .playcount)
+    let listenersString = try container.decodeIfPresent(String.self, forKey: .listeners)
+    let mbid = try container.decodeIfPresent(String.self, forKey: .mbid)
 
-    self.mbid = UItemID(mbid)
+    self.mbid = mbid.map { UItemID(rawValue: $0) }
 
-    if let playcount = Double(playcountString) {
+    if let playcountString, !playcountString.isEmpty {
+      guard let playcount = Double(playcountString) else {
+        throw UmeroKitError.invalidDataFormat("Playcount is not a valid number for album '\(name)'")
+      }
       self.playcount = playcount
     } else {
-      throw UmeroKitError.invalidDataFormat("Playcount is not a valid number for album '\(name)'")
+      self.playcount = 0
     }
 
-    if let listeners = Double(listenersString) {
+    if let listenersString, !listenersString.isEmpty {
+      guard let listeners = Double(listenersString) else {
+        throw UmeroKitError.invalidDataFormat("Listeners is not a valid number for album '\(name)'")
+      }
       self.listeners = listeners
     } else {
-      throw UmeroKitError.invalidDataFormat("Listeners is not a valid number for album '\(name)'")
+      self.listeners = 0
     }
   }
 }

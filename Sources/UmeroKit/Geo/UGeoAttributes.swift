@@ -43,29 +43,25 @@ extension UGeoAttributes: Codable {
     let totalPagesString = try container.decode(String.self, forKey: .totalPages)
     let totalString = try container.decode(String.self, forKey: .total)
 
-    if let page = Int(pageString) {
-      self.page = page
-    } else {
-      throw NSError(domain: "Page is not of the type Int.", code: 0)
+    guard let page = Int(pageString) else {
+      throw UmeroKitError.invalidDataFormat("Page is not a valid number for geo chart")
     }
+    self.page = page
 
-    if let perPage = Int(perPageString) {
-      self.perPage = perPage
-    } else {
-      throw NSError(domain: "PerPage is not of the type Int.", code: 0)
+    guard let perPage = Int(perPageString) else {
+      throw UmeroKitError.invalidDataFormat("PerPage is not a valid number for geo chart")
     }
+    self.perPage = perPage
 
-    if let totalPages = Double(totalPagesString) {
-      self.totalPages = totalPages
-    } else {
-      throw NSError(domain: "Total Pages is not of the type Double.", code: 0)
+    guard let totalPages = Double(totalPagesString) else {
+      throw UmeroKitError.invalidDataFormat("TotalPages is not a valid number for geo chart")
     }
+    self.totalPages = totalPages
 
-    if let total = Double(totalString) {
-      self.total = total
-    } else {
-      throw NSError(domain: "Total is not of the type Double.", code: 0)
+    guard let total = Double(totalString) else {
+      throw UmeroKitError.invalidDataFormat("Total is not a valid number for geo chart")
     }
+    self.total = total
   }
 
   public func encode(to encoder: Encoder) throws {

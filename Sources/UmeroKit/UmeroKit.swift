@@ -93,7 +93,22 @@ extension UmeroKit {
                         username: String? = nil,
                         language: String? = nil) async throws -> UAlbum {
     var components = UURLComponents(apiKey: apiKey, endpoint: AlbumEndpoint.getInfo)
-    components.items = [URLQueryItem(name: "album", value: album), URLQueryItem(name: "artist", value: artist)]
+
+    var queryItems: [URLQueryItem] = [
+      URLQueryItem(name: "album", value: album),
+      URLQueryItem(name: "artist", value: artist),
+      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)")
+    ]
+
+    if let username {
+      queryItems.append(URLQueryItem(name: "username", value: username))
+    }
+
+    if let language {
+      queryItems.append(URLQueryItem(name: "language", value: language))
+    }
+
+    components.items = queryItems
 
     let request = UDataRequest<UItemCollection>(url: components.url)
     let response = try await request.response()
@@ -105,7 +120,21 @@ extension UmeroKit {
                         username: String? = nil,
                         language: String? = nil) async throws -> UAlbum {
     var components = UURLComponents(apiKey: apiKey, endpoint: AlbumEndpoint.getInfo)
-    components.items = [URLQueryItem(name: "mbid", value: mbid.rawValue)]
+
+    var queryItems: [URLQueryItem] = [
+      URLQueryItem(name: "mbid", value: mbid.rawValue),
+      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)")
+    ]
+
+    if let username {
+      queryItems.append(URLQueryItem(name: "username", value: username))
+    }
+
+    if let language {
+      queryItems.append(URLQueryItem(name: "language", value: language))
+    }
+
+    components.items = queryItems
 
     let request = UDataRequest<UItemCollection>(url: components.url)
     let response = try await request.response()
