@@ -17,7 +17,6 @@ enum MD5Helper {
     /// Generates MD5 hash for Last.fm API signature
     /// - Parameter string: The string to hash
     /// - Returns: Hexadecimal string representation of the MD5 hash
-    @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
     static func hash(_ string: String) -> String {
         let data = Data(string.utf8)
         let digest = Insecure.MD5.hash(data: data)

@@ -7,7 +7,6 @@
 
 import Foundation
 
-@available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 6.0, *)
 protocol UItem: Identifiable {
   var id: String { get }
   var url: URL { get }

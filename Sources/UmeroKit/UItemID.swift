@@ -8,7 +8,6 @@
 import Foundation
 
 /// An object that represents a musicbrainz unique identifier for a last.fm music item.
-@available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 6.0, *)
 public struct UItemID: Equatable, Hashable, Sendable, RawRepresentable, ExpressibleByStringLiteral {
 
   /// Creates a musicbrainz identifier with a string.

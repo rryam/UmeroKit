@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
   name: "UmeroKit",
-  platforms: [.iOS(.v13), .macOS(.v11), .watchOS(.v6), .tvOS(.v13)],
+  platforms: [.iOS(.v13), .macOS(.v11), .watchOS(.v6), .tvOS(.v13), .visionOS(.v1)],
   products: [
     .library(name: "UmeroKit", targets: ["UmeroKit"]),
   ],
