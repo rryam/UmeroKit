@@ -8,7 +8,6 @@
 import Foundation
 import CryptoKit
 
-
 struct ULoveRequest {
   private let track: String
 
@@ -33,9 +32,8 @@ struct ULoveRequest {
   func response() async throws {
     let components = UURLPostComponents()
     var signature = ""
-    var postData: Data? = nil
 
-    var parameters = [
+    var parameters: [String: String] = [
       "method": endpoint,
       "api_key": apiKey,
       "artist": artist,
@@ -43,8 +41,8 @@ struct ULoveRequest {
       "sk": sessionKey
     ]
 
-    for key in parameters.keys.sorted() {
-      signature += "\(key)\(parameters[key]!)"
+    for (key, value) in parameters.sorted(by: { $0.key < $1.key }) {
+      signature += "\(key)\(value)"
     }
 
     signature += secret
@@ -53,7 +51,15 @@ struct ULoveRequest {
 
     parameters["api_sig"] = hashedSignature
 
-    postData = parameters.map { "\($0.key)=\($0.value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)" }.joined(separator: "&").data(using: .utf8)
+    let bodyString = parameters
+      .sorted(by: { $0.key < $1.key })
+      .map { key, value -> String in
+        let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value
+        return "\(key)=\(encodedValue)"
+      }
+      .joined(separator: "&")
+
+    let postData = bodyString.data(using: .utf8)
 
     let request = UDataPostRequest<UItemCollection>(url: components.url, data: postData)
     _ = try await request.responseData()

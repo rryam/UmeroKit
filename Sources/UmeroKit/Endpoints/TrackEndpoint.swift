@@ -15,7 +15,6 @@ enum TrackEndpoint: String, UURLEndpoint {
   case getTopTags
   case search
 
-
   var path: String {
     "track." + rawValue.lowercased()
   }

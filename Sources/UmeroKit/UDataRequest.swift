@@ -33,7 +33,6 @@ public struct UDataPostRequest<Model: Codable>: Sendable {
   var url: URL?
   var data: Data?
 
-
   init(url: URL?, data: Data? = nil) {
     self.url = url
     self.data = data

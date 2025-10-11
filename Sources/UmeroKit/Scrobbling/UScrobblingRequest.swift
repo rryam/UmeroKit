@@ -31,7 +31,14 @@ struct UScrobblingRequest {
 
   private let secret: String
 
-  init(track: String, artist: String, endpoint: ScrobblingEndpoint, apiKey: String, sessionKey: String, secret: String) {
+  init(
+    track: String,
+    artist: String,
+    endpoint: ScrobblingEndpoint,
+    apiKey: String,
+    sessionKey: String,
+    secret: String
+  ) {
     self.track = track
     self.artist = artist
     self.apiKey = apiKey
@@ -43,9 +50,8 @@ struct UScrobblingRequest {
   func response() async throws {
     let components = UURLPostComponents()
     var signature = ""
-    var postData: Data? = nil
 
-    var parameters = [
+    var parameters: [String: String] = [
       "method": endpoint.path,
       "api_key": apiKey,
       "artist": artist,
@@ -54,13 +60,14 @@ struct UScrobblingRequest {
     ]
 
     switch endpoint {
-      case .updateNowPlaying: ()
-      case .scrobble:
-        parameters["timestamp"] = String(Int(Date().timeIntervalSince1970))
+    case .updateNowPlaying:
+      break
+    case .scrobble:
+      parameters["timestamp"] = String(Int(Date().timeIntervalSince1970))
     }
 
-    for key in parameters.keys.sorted() {
-      signature += "\(key)\(parameters[key]!)"
+    for (key, value) in parameters.sorted(by: { $0.key < $1.key }) {
+      signature += "\(key)\(value)"
     }
 
     signature += secret
@@ -69,7 +76,15 @@ struct UScrobblingRequest {
 
     parameters["api_sig"] = hashedSignature
 
-    postData = parameters.map { "\($0.key)=\($0.value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)" }.joined(separator: "&").data(using: .utf8)
+    let bodyString = parameters
+      .sorted(by: { $0.key < $1.key })
+      .map { key, value -> String in
+        let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value
+        return "\(key)=\(encodedValue)"
+      }
+      .joined(separator: "&")
+
+    let postData = bodyString.data(using: .utf8)
 
     let request = UDataPostRequest<UItemCollection>(url: components.url, data: postData)
     _ = try await request.responseData()

@@ -14,12 +14,12 @@ import CryptoKit
 /// However, Last.fm API requires MD5 for API signature generation as per their
 /// authentication specification. This implementation is solely for API compatibility.
 enum MD5Helper {
-    /// Generates MD5 hash for Last.fm API signature
-    /// - Parameter string: The string to hash
-    /// - Returns: Hexadecimal string representation of the MD5 hash
-    static func hash(_ string: String) -> String {
-        let data = Data(string.utf8)
-        let digest = Insecure.MD5.hash(data: data)
-        return digest.map { String(format: "%02hhx", $0) }.joined()
-    }
+  /// Generates MD5 hash for Last.fm API signature
+  /// - Parameter string: The string to hash
+  /// - Returns: Hexadecimal string representation of the MD5 hash
+  static func hash(_ string: String) -> String {
+    let data = Data(string.utf8)
+    let digest = Insecure.MD5.hash(data: data)
+    return digest.map { String(format: "%02hhx", $0) }.joined()
+  }
 }
