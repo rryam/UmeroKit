@@ -82,7 +82,7 @@ extension UAlbumSearchResults: Encodable {
 /// Represents the collection of album matches from a search.
 public struct UAlbumSearchMatches {
   /// Array of albums that match the search query.
-  public let album: [UAlbum]
+  public let album: [UAlbumSearchResult]
 }
 
 extension UAlbumSearchMatches: Decodable {}

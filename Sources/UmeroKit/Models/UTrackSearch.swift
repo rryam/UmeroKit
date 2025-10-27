@@ -82,7 +82,7 @@ extension UTrackSearchResults: Encodable {
 /// Represents the collection of track matches from a search.
 public struct UTrackSearchMatches {
   /// Array of tracks that match the search query.
-  public let track: [UTrack]
+  public let track: [UTrackSearchResult]
 }
 
 extension UTrackSearchMatches: Decodable {}
