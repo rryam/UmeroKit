@@ -59,13 +59,13 @@ extension UAlbumSearchResults: Decodable {
     if let queryAttributes = try? container.decodeIfPresent(USearchAttributes.self, forKey: .attributes) {
       self.attributes = queryAttributes
     } else {
-      // If opensearch:Query doesn't exist, create a default attributes object
-      // This might need to be adjusted based on actual API response structure
+      // If opensearch:Query doesn't exist, create reasonable defaults based on response content
+      let itemCount = albums.album.count
       self.attributes = USearchAttributes(
         page: 1,
-        totalPages: 1,
-        totalResults: albums.album.count,
-        itemsPerPage: albums.album.count
+        totalPages: itemCount > 0 ? 1 : 0,
+        totalResults: itemCount,
+        itemsPerPage: itemCount > 0 ? itemCount : 30
       )
     }
   }
