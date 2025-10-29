@@ -42,10 +42,20 @@ public struct UAlbumSearchResults {
   public let attributes: USearchAttributes
 }
 
+private struct QueryInfo: Codable {
+  let startPage: String
+
+  enum CodingKeys: String, CodingKey {
+    case startPage
+  }
+}
+
 extension UAlbumSearchResults {
   enum CodingKeys: String, CodingKey {
     case albummatches = "albummatches"
-    case attributes = "opensearch:Query"
+    case query = "opensearch:Query"
+    case totalResults = "opensearch:totalResults"
+    case itemsPerPage = "opensearch:itemsPerPage"
   }
 }
 
@@ -55,19 +65,24 @@ extension UAlbumSearchResults: Decodable {
 
     self.albums = try container.decode(UAlbumSearchMatches.self, forKey: .albummatches)
 
-    // The attributes are usually nested in the "opensearch:Query" field
-    if let queryAttributes = try? container.decodeIfPresent(USearchAttributes.self, forKey: .attributes) {
-      self.attributes = queryAttributes
-    } else {
-      // If opensearch:Query doesn't exist, create reasonable defaults based on response content
-      let itemCount = albums.album.count
-      self.attributes = USearchAttributes(
-        page: 1,
-        totalPages: itemCount > 0 ? 1 : 0,
-        totalResults: itemCount,
-        itemsPerPage: itemCount > 0 ? itemCount : 30
-      )
-    }
+    // Parse pagination metadata from opensearch fields
+    let queryInfo = try container.decode(QueryInfo.self, forKey: .query)
+    let totalResultsString = try container.decode(String.self, forKey: .totalResults)
+    let itemsPerPageString = try container.decode(String.self, forKey: .itemsPerPage)
+
+    let startPage = Int(queryInfo.startPage) ?? 1
+    let totalResults = Int(totalResultsString) ?? 0
+    let itemsPerPage = Int(itemsPerPageString) ?? 30
+
+    // Calculate total pages
+    let totalPages = itemsPerPage > 0 ? (totalResults + itemsPerPage - 1) / itemsPerPage : 0
+
+    self.attributes = USearchAttributes(
+      page: startPage,
+      totalPages: totalPages,
+      totalResults: totalResults,
+      itemsPerPage: itemsPerPage
+    )
   }
 }
 
@@ -75,7 +90,11 @@ extension UAlbumSearchResults: Encodable {
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(albums, forKey: .albummatches)
-    try container.encode(attributes, forKey: .attributes)
+
+    let queryInfo = QueryInfo(startPage: String(attributes.page))
+    try container.encode(queryInfo, forKey: .query)
+    try container.encode(String(attributes.totalResults), forKey: .totalResults)
+    try container.encode(String(attributes.itemsPerPage), forKey: .itemsPerPage)
   }
 }
 
