@@ -206,6 +206,27 @@ extension UmeroKit {
     let response = try await request.response()
     return response
   }
+
+  /// Search for an album by name. Returns album matches sorted by relevance.
+  /// - Parameters:
+  ///   - album: The album name to search for.
+  ///   - page: The page number to fetch (default: 1).
+  ///   - limit: The number of results to fetch per page (default: 30, max: 100).
+  /// - Returns: Search results containing matching albums and metadata.
+  public func searchAlbum(album: String, page: Int = 1, limit: Int = 30) async throws -> UAlbumSearchResults {
+    guard !album.isEmpty else { throw UmeroKitError.invalidURL }
+
+    var components = UURLComponents(apiKey: apiKey, endpoint: AlbumEndpoint.search)
+    components.items = [
+      URLQueryItem(name: "album", value: album),
+      URLQueryItem(name: "page", value: String(page)),
+      URLQueryItem(name: "limit", value: String(min(limit, 100)))
+    ]
+
+    let request = UDataRequest<UAlbumSearch>(url: components.url)
+    let response = try await request.response()
+    return response.results
+  }
 }
 
 // MARK: - ARTIST
@@ -234,6 +255,27 @@ extension UmeroKit {
     let request = UDataRequest<UArtist>(url: components.url)
     let response = try await request.response()
     return response
+  }
+
+  /// Search for an artist by name. Returns artist matches sorted by relevance.
+  /// - Parameters:
+  ///   - artist: The artist name to search for.
+  ///   - page: The page number to fetch (default: 1).
+  ///   - limit: The number of results to fetch per page (default: 30, max: 50).
+  /// - Returns: Search results containing matching artists and metadata.
+  public func searchArtist(artist: String, page: Int = 1, limit: Int = 30) async throws -> UArtistSearchResults {
+    guard !artist.isEmpty else { throw UmeroKitError.invalidURL }
+
+    var components = UURLComponents(apiKey: apiKey, endpoint: ArtistEndpoint.search)
+    components.items = [
+      URLQueryItem(name: "artist", value: artist),
+      URLQueryItem(name: "page", value: String(page)),
+      URLQueryItem(name: "limit", value: String(min(limit, 50)))
+    ]
+
+    let request = UDataRequest<UArtistSearch>(url: components.url)
+    let response = try await request.response()
+    return response.results
   }
 }
 
@@ -384,6 +426,40 @@ extension UmeroKit {
     let request = UGeoRequest<UGeoTracks>(for: country, endpoint: .getTopTracks, limit: limit, page: page)
     let response = try await request.response(with: apiKey)
     return response
+  }
+
+  // MARK: - TRACK
+  /// Search for a track by name. Optionally narrow the search to a specific artist.
+  /// - Parameters:
+  ///   - track: The track name to search for.
+  ///   - artist: Optionally narrow the search to tracks by this specific artist.
+  ///   - page: The page number to fetch (default: 1).
+  ///   - limit: The number of results to fetch per page (default: 30, max: 50).
+  /// - Returns: Search results containing matching tracks and metadata.
+  public func searchTrack(
+    track: String,
+    artist: String? = nil,
+    page: Int = 1,
+    limit: Int = 30
+  ) async throws -> UTrackSearchResults {
+    guard !track.isEmpty else { throw UmeroKitError.invalidURL }
+
+    var components = UURLComponents(apiKey: apiKey, endpoint: TrackEndpoint.search)
+    var queryItems: [URLQueryItem] = [
+      URLQueryItem(name: "track", value: track),
+      URLQueryItem(name: "page", value: String(page)),
+      URLQueryItem(name: "limit", value: String(min(limit, 50)))
+    ]
+
+    if let artist = artist, !artist.isEmpty {
+      queryItems.append(URLQueryItem(name: "artist", value: artist))
+    }
+
+    components.items = queryItems
+
+    let request = UDataRequest<UTrackSearch>(url: components.url)
+    let response = try await request.response()
+    return response.results
   }
 }
 
