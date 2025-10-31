@@ -68,7 +68,12 @@ extension UUserWeeklyChartList: Decodable {
     let container = try decoder.container(keyedBy: MainKey.self)
     let chartListContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .weeklychartlist)
 
-    self.chartList = try chartListContainer.decode([UUserWeeklyChartListItem].self, forKey: .chart)
+    // Handle both single chart and array of charts
+    if let singleChart = try? chartListContainer.decode(UUserWeeklyChartListItem.self, forKey: .chart) {
+      self.chartList = [singleChart]
+    } else {
+      self.chartList = try chartListContainer.decodeIfPresent([UUserWeeklyChartListItem].self, forKey: .chart) ?? []
+    }
   }
 }
 

@@ -92,7 +92,12 @@ extension UUserTopAlbums: Decodable {
     let container = try decoder.container(keyedBy: MainKey.self)
     let albumsContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .topalbums)
 
-    self.albums = try albumsContainer.decode([UUserTopAlbum].self, forKey: .album)
+    // Handle both single album and array of albums
+    if let singleAlbum = try? albumsContainer.decode(UUserTopAlbum.self, forKey: .album) {
+      self.albums = [singleAlbum]
+    } else {
+      self.albums = try albumsContainer.decodeIfPresent([UUserTopAlbum].self, forKey: .album) ?? []
+    }
     self.attributes = try albumsContainer.decode(UUserTopItemsAttributes.self, forKey: .attributes)
   }
 }

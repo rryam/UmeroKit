@@ -123,7 +123,7 @@ extension UUserWeeklyTrackChart: Decodable {
     if let singleTrack = try? chartContainer.decode(UUserWeeklyTrackChartItem.self, forKey: .track) {
       self.tracks = [singleTrack]
     } else {
-      self.tracks = try chartContainer.decode([UUserWeeklyTrackChartItem].self, forKey: .track)
+      self.tracks = try chartContainer.decodeIfPresent([UUserWeeklyTrackChartItem].self, forKey: .track) ?? []
     }
     
     self.attributes = try chartContainer.decode(UUserWeeklyChartAttributes.self, forKey: .attributes)

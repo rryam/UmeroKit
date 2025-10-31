@@ -99,7 +99,12 @@ extension UUserTopTracks: Decodable {
     let container = try decoder.container(keyedBy: MainKey.self)
     let tracksContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .toptracks)
 
-    self.tracks = try tracksContainer.decode([UUserTopTrack].self, forKey: .track)
+    // Handle both single track and array of tracks
+    if let singleTrack = try? tracksContainer.decode(UUserTopTrack.self, forKey: .track) {
+      self.tracks = [singleTrack]
+    } else {
+      self.tracks = try tracksContainer.decodeIfPresent([UUserTopTrack].self, forKey: .track) ?? []
+    }
     self.attributes = try tracksContainer.decode(UUserTopItemsAttributes.self, forKey: .attributes)
   }
 }

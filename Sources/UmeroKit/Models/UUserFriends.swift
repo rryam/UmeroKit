@@ -49,16 +49,15 @@ extension UUserFriend: Decodable {
     self.image = try container.decodeIfPresent([UImage].self, forKey: .image)
     
     let subscriberString = try container.decodeIfPresent(String.self, forKey: .subscriber)
-    self.subscriber = subscriberString == "1"
+    self.subscriber = subscriberString.map { $0 == "1" }
     
     // Date parsing
     if let dateContainer = try? container.nestedContainer(keyedBy: DateKeys.self, forKey: .date) {
       let timestampString = try dateContainer.decode(String.self, forKey: .timestamp)
-      if let timestamp = Int(timestampString) {
-        self.date = Date(timeIntervalSince1970: TimeInterval(timestamp))
-      } else {
-        self.date = nil
+      guard let timestamp = Int(timestampString) else {
+        throw UmeroKitError.invalidDataFormat("Date timestamp for friend '\(name)' is not a valid number.")
       }
+      self.date = Date(timeIntervalSince1970: TimeInterval(timestamp))
     } else {
       self.date = nil
     }

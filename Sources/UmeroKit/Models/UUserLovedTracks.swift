@@ -59,11 +59,10 @@ extension UUserLovedTrack: Decodable {
     // Date parsing
     if let dateContainer = try? container.nestedContainer(keyedBy: DateKeys.self, forKey: .date) {
       let timestampString = try dateContainer.decode(String.self, forKey: .timestamp)
-      if let timestamp = Int(timestampString) {
-        self.date = Date(timeIntervalSince1970: TimeInterval(timestamp))
-      } else {
-        self.date = nil
+      guard let timestamp = Int(timestampString) else {
+        throw UmeroKitError.invalidDataFormat("Date timestamp for loved track '\(name)' is not a valid number.")
       }
+      self.date = Date(timeIntervalSince1970: TimeInterval(timestamp))
     } else {
       self.date = nil
     }
@@ -115,7 +114,7 @@ extension UUserLovedTracks: Decodable {
     if let singleTrack = try? tracksContainer.decode(UUserLovedTrack.self, forKey: .track) {
       self.tracks = [singleTrack]
     } else {
-      self.tracks = try tracksContainer.decode([UUserLovedTrack].self, forKey: .track)
+      self.tracks = try tracksContainer.decodeIfPresent([UUserLovedTrack].self, forKey: .track) ?? []
     }
     
     self.attributes = try tracksContainer.decode(UUserTopItemsAttributes.self, forKey: .attributes)

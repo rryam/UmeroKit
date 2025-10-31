@@ -123,7 +123,7 @@ extension UUserWeeklyAlbumChart: Decodable {
     if let singleAlbum = try? chartContainer.decode(UUserWeeklyAlbumChartItem.self, forKey: .album) {
       self.albums = [singleAlbum]
     } else {
-      self.albums = try chartContainer.decode([UUserWeeklyAlbumChartItem].self, forKey: .album)
+      self.albums = try chartContainer.decodeIfPresent([UUserWeeklyAlbumChartItem].self, forKey: .album) ?? []
     }
     
     self.attributes = try chartContainer.decode(UUserWeeklyChartAttributes.self, forKey: .attributes)

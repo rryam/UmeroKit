@@ -101,11 +101,8 @@ extension UUserInfo: Decodable {
       self.age = nil
     }
     
-    if let subscriberString = try userContainer.decodeIfPresent(String.self, forKey: .subscriber) {
-      self.subscriber = NSString(string: subscriberString).boolValue
-    } else {
-      self.subscriber = nil
-    }
+    let subscriberString = try userContainer.decodeIfPresent(String.self, forKey: .subscriber)
+    self.subscriber = subscriberString.map { $0 == "1" }
     
     if let playcountString = try userContainer.decodeIfPresent(String.self, forKey: .playcount),
        !playcountString.isEmpty {

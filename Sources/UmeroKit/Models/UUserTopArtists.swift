@@ -32,7 +32,12 @@ extension UUserTopArtists: Decodable {
     let container = try decoder.container(keyedBy: MainKey.self)
     let artistsContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .topartists)
 
-    self.artists = try artistsContainer.decode([UArtist].self, forKey: .artist)
+    // Handle both single artist and array of artists
+    if let singleArtist = try? artistsContainer.decode(UArtist.self, forKey: .artist) {
+      self.artists = [singleArtist]
+    } else {
+      self.artists = try artistsContainer.decodeIfPresent([UArtist].self, forKey: .artist) ?? []
+    }
     self.attributes = try artistsContainer.decode(UUserTopItemsAttributes.self, forKey: .attributes)
   }
 }

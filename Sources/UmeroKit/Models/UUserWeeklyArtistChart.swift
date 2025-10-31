@@ -117,7 +117,7 @@ extension UUserWeeklyArtistChart: Decodable {
     if let singleArtist = try? chartContainer.decode(UUserWeeklyArtistChartItem.self, forKey: .artist) {
       self.artists = [singleArtist]
     } else {
-      self.artists = try chartContainer.decode([UUserWeeklyArtistChartItem].self, forKey: .artist)
+      self.artists = try chartContainer.decodeIfPresent([UUserWeeklyArtistChartItem].self, forKey: .artist) ?? []
     }
     
     self.attributes = try chartContainer.decode(UUserWeeklyChartAttributes.self, forKey: .attributes)
