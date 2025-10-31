@@ -44,4 +44,3 @@ extension UUserTags: Encodable {
     try container.encode(tags, forKey: .tags)
   }
 }
-

@@ -36,16 +36,17 @@ extension UTagAttributes: Codable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    tag = try container.decode(String.self, forKey: .tag)
+    let tagName = try container.decode(String.self, forKey: .tag)
 
     func decodeValue<T: LosslessStringConvertible>(_ key: CodingKeys, as type: T.Type, name: String) throws -> T {
       let stringValue = try container.decode(String.self, forKey: key)
       guard let value = T(stringValue) else {
-        throw UmeroKitError.invalidDataFormat("\(name) is not a valid number for tag '\(tag)'")
+        throw UmeroKitError.invalidDataFormat("\(name) is not a valid number for tag '\(tagName)'")
       }
       return value
     }
 
+    self.tag = tagName
     self.page = try decodeValue(.page, as: Int.self, name: "Page")
     self.perPage = try decodeValue(.perPage, as: Int.self, name: "PerPage")
     self.totalPages = try decodeValue(.totalPages, as: Double.self, name: "TotalPages")

@@ -107,18 +107,24 @@ extension UUserInfo: Decodable {
       self.subscriber = nil
     }
     
-    if let playcountString = try userContainer.decodeIfPresent(String.self, forKey: .playcount), !playcountString.isEmpty {
+    if let playcountString = try userContainer.decodeIfPresent(String.self, forKey: .playcount),
+       !playcountString.isEmpty {
       guard let playcountValue = Double(playcountString) else {
-        throw UmeroKitError.invalidDataFormat("Playcount is not a valid number for user '\(name)'")
+        throw UmeroKitError.invalidDataFormat(
+          "Playcount is not a valid number for user '\(name)'"
+        )
       }
       self.playcount = playcountValue
     } else {
       self.playcount = nil
     }
     
-    if let playlistsString = try userContainer.decodeIfPresent(String.self, forKey: .playlists), !playlistsString.isEmpty {
+    if let playlistsString = try userContainer.decodeIfPresent(String.self, forKey: .playlists),
+       !playlistsString.isEmpty {
       guard let playlistsValue = Int(playlistsString) else {
-        throw UmeroKitError.invalidDataFormat("Playlists is not a valid number for user '\(name)'")
+        throw UmeroKitError.invalidDataFormat(
+          "Playlists is not a valid number for user '\(name)'"
+        )
       }
       self.playlists = playlistsValue
     } else {
@@ -160,4 +166,3 @@ extension UUserInfo: Encodable {
     try userContainer.encodeIfPresent(registered, forKey: .registered)
   }
 }
-

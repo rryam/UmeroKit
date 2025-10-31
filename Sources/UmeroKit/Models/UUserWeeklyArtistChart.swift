@@ -133,4 +133,3 @@ extension UUserWeeklyArtistChart: Encodable {
     try chartContainer.encode(attributes, forKey: .attributes)
   }
 }
-

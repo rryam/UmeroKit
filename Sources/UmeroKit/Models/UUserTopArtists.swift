@@ -107,4 +107,3 @@ extension UUserTopItemsAttributes: Encodable {
     try container.encodeIfPresent(period, forKey: .period)
   }
 }
-

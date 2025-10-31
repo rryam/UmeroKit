@@ -188,4 +188,3 @@ extension UUserWeeklyChartAttributes: Encodable {
     try container.encode(String(Int(to.timeIntervalSince1970)), forKey: .to)
   }
 }
-

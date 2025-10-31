@@ -128,4 +128,3 @@ extension UUserFriends: Encodable {
     try friendsContainer.encode(attributes, forKey: .attributes)
   }
 }
-

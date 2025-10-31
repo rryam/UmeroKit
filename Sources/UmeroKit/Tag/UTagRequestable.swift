@@ -13,4 +13,3 @@ protocol UTagRequestable {
   /// The attributes of the tag request.
   var attributes: UTagAttributes { get }
 }
-

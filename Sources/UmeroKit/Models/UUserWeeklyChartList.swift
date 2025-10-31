@@ -79,4 +79,3 @@ extension UUserWeeklyChartList: Encodable {
     try chartListContainer.encode(chartList, forKey: .chart)
   }
 }
-

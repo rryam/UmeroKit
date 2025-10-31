@@ -211,4 +211,3 @@ extension UUserPersonalTagsAttributes: Encodable {
     try container.encodeIfPresent(taggingtype, forKey: .taggingtype)
   }
 }
-

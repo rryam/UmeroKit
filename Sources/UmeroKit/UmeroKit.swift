@@ -556,7 +556,7 @@ extension UmeroKit {
   ///   - page: The page of results to retrieve (default is 1).
   /// - Returns: A `UTagTopArtists` object containing the top artists for the tag.
   public func tagTopArtists(for tag: String, limit: Int = 50, page: Int = 1) async throws -> UTagTopArtists {
-    let request = UTagRequest<UTagTopArtists>(for: tag, endpoint: .getTopArtists, limit: limit, page: page)
+    let request = UTagRequest<UTagTopArtists>(for: tag, endpoint: TagEndpoint.getTopArtists, limit: limit, page: page)
     let response = try await request.response(with: apiKey)
     return response
   }
@@ -579,7 +579,7 @@ extension UmeroKit {
   ///   - page: The page of results to retrieve (default is 1).
   /// - Returns: A `UTagTopAlbums` object containing the top albums for the tag.
   public func tagTopAlbums(for tag: String, limit: Int = 50, page: Int = 1) async throws -> UTagTopAlbums {
-    let request = UTagRequest<UTagTopAlbums>(for: tag, endpoint: .getTopAlbums, limit: limit, page: page)
+    let request = UTagRequest<UTagTopAlbums>(for: tag, endpoint: TagEndpoint.getTopAlbums, limit: limit, page: page)
     let response = try await request.response(with: apiKey)
     return response
   }
@@ -602,7 +602,7 @@ extension UmeroKit {
   ///   - page: The page of results to retrieve (default is 1).
   /// - Returns: A `UTagTopTracks` object containing the top tracks for the tag.
   public func tagTopTracks(for tag: String, limit: Int = 50, page: Int = 1) async throws -> UTagTopTracks {
-    let request = UTagRequest<UTagTopTracks>(for: tag, endpoint: .getTopTracks, limit: limit, page: page)
+    let request = UTagRequest<UTagTopTracks>(for: tag, endpoint: TagEndpoint.getTopTracks, limit: limit, page: page)
     let response = try await request.response(with: apiKey)
     return response
   }
@@ -1019,33 +1019,24 @@ extension UmeroKit {
     let targetUsername = username ?? instanceUsername
     queryItems.append(URLQueryItem(name: "user", value: targetUsername))
 
-    if let limit {
-      queryItems.append(URLQueryItem(name: "limit", value: String(limit)))
+    // Helper function to conditionally add query items
+    func addQueryItemIfPresent(_ name: String, value: String?) {
+      if let value {
+        queryItems.append(URLQueryItem(name: name, value: value))
+      }
     }
 
-    if let page {
-      queryItems.append(URLQueryItem(name: "page", value: String(page)))
-    }
-
-    if let period {
-      queryItems.append(URLQueryItem(name: "period", value: period))
-    }
-
-    if let from {
-      queryItems.append(URLQueryItem(name: "from", value: String(from)))
-    }
-
-    if let to {
-      queryItems.append(URLQueryItem(name: "to", value: String(to)))
-    }
-
+    addQueryItemIfPresent("limit", value: limit.map { String($0) })
+    addQueryItemIfPresent("page", value: page.map { String($0) })
+    addQueryItemIfPresent("period", value: period)
+    addQueryItemIfPresent("from", value: from.map { String($0) })
+    addQueryItemIfPresent("to", value: to.map { String($0) })
+    
     if let extended {
       queryItems.append(URLQueryItem(name: "extended", value: "\(extended.intValue)"))
     }
-
-    if let taggingtype {
-      queryItems.append(URLQueryItem(name: "taggingtype", value: taggingtype))
-    }
+    
+    addQueryItemIfPresent("taggingtype", value: taggingtype)
 
     components.items = queryItems
 
@@ -1224,7 +1215,15 @@ extension UmeroKit {
     to: Int? = nil,
     extended: Bool = false
   ) async throws -> UUserRecentTracks {
-    try await getUserData(.getRecentTracks, username: username, limit: limit, page: page, from: from, to: to, extended: extended)
+    try await getUserData(
+      .getRecentTracks,
+      username: username,
+      limit: limit,
+      page: page,
+      from: from,
+      to: to,
+      extended: extended
+    )
   }
 
   /// Get loved tracks by a user.

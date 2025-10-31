@@ -131,4 +131,3 @@ extension UUserLovedTracks: Encodable {
     try tracksContainer.encode(attributes, forKey: .attributes)
   }
 }
-

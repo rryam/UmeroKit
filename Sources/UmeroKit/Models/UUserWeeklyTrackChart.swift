@@ -139,4 +139,3 @@ extension UUserWeeklyTrackChart: Encodable {
     try chartContainer.encode(attributes, forKey: .attributes)
   }
 }
-

@@ -225,4 +225,3 @@ extension UUserRecentTracksAttributes: Encodable {
     try container.encode(String(total), forKey: .total)
   }
 }
-

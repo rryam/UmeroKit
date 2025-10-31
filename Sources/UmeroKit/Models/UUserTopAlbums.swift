@@ -106,4 +106,3 @@ extension UUserTopAlbums: Encodable {
     try albumsContainer.encode(attributes, forKey: .attributes)
   }
 }
-
