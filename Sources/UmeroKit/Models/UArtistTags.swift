@@ -22,19 +22,15 @@ extension UArtistTags: Decodable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     
-    // Handle nested tags structure
-    let tagsContainer = try container.nestedContainer(keyedBy: UTags.CodingKeys.self, forKey: .tags)
-    if let tagArray = try? tagsContainer.decode([UTag].self, forKey: .tag) {
-      self.tags = UTags(tag: tagArray)
-    } else {
-      self.tags = UTags(tag: [])
-    }
+    // Handle nested tags structure - decode UTags directly since it's Codable
+    // decodeIfPresent handles missing keys gracefully, but still throws errors for malformed data
+    self.tags = try container.decodeIfPresent(UTags.self, forKey: .tags) ?? UTags(tag: [])
   }
 }
 
 extension UArtistTags: Encodable {
   public func encode(to encoder: Encoder) throws {
-    // TO:DO
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(tags, forKey: .tags)
   }
 }
-

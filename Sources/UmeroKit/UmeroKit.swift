@@ -8,6 +8,8 @@
 import Foundation
 import CryptoKit
 
+// swiftlint:disable file_length
+
 struct UItemCollection: Codable {
   let album: UAlbum
 }
@@ -278,6 +280,42 @@ extension UmeroKit {
     return response.results
   }
 
+  /// Helper function to fetch artist data from Last.fm API endpoints.
+  ///
+  /// - Parameters:
+  ///   - endpoint: The artist endpoint to call.
+  ///   - artist: The artist name.
+  ///   - autocorrect: Transform misspelled artist names into correct artist names (default: false).
+  ///   - limit: The number of items to retrieve (optional).
+  ///   - page: The page of results to retrieve (optional).
+  /// - Returns: The decoded response model of type `T`.
+  private func getArtistData<T: Codable>(
+    _ endpoint: ArtistEndpoint,
+    for artist: String,
+    autocorrect: Bool = false,
+    limit: Int? = nil,
+    page: Int? = nil
+  ) async throws -> T {
+    var components = UURLComponents(apiKey: apiKey, endpoint: endpoint)
+    var queryItems: [URLQueryItem] = [
+      URLQueryItem(name: "artist", value: artist),
+      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)")
+    ]
+
+    if let limit {
+      queryItems.append(URLQueryItem(name: "limit", value: String(limit)))
+    }
+
+    if let page {
+      queryItems.append(URLQueryItem(name: "page", value: String(page)))
+    }
+
+    components.items = queryItems
+
+    let request = UDataRequest<T>(url: components.url)
+    return try await request.response()
+  }
+
   /// Get the top albums for an artist on Last.fm.
   ///
   ///  Example:
@@ -302,20 +340,13 @@ extension UmeroKit {
     limit: Int = 50,
     page: Int = 1
   ) async throws -> UArtistTopAlbums {
-    var components = UURLComponents(apiKey: apiKey, endpoint: ArtistEndpoint.getTopAlbums)
-
-    var queryItems: [URLQueryItem] = [
-      URLQueryItem(name: "artist", value: artist),
-      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)"),
-      URLQueryItem(name: "limit", value: String(limit)),
-      URLQueryItem(name: "page", value: String(page))
-    ]
-
-    components.items = queryItems
-
-    let request = UDataRequest<UArtistTopAlbums>(url: components.url)
-    let response = try await request.response()
-    return response
+    try await getArtistData(
+      .getTopAlbums,
+      for: artist,
+      autocorrect: autocorrect,
+      limit: limit,
+      page: page
+    )
   }
 
   /// Get the top tracks for an artist on Last.fm.
@@ -342,20 +373,13 @@ extension UmeroKit {
     limit: Int = 50,
     page: Int = 1
   ) async throws -> UArtistTopTracks {
-    var components = UURLComponents(apiKey: apiKey, endpoint: ArtistEndpoint.getTopTracks)
-
-    var queryItems: [URLQueryItem] = [
-      URLQueryItem(name: "artist", value: artist),
-      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)"),
-      URLQueryItem(name: "limit", value: String(limit)),
-      URLQueryItem(name: "page", value: String(page))
-    ]
-
-    components.items = queryItems
-
-    let request = UDataRequest<UArtistTopTracks>(url: components.url)
-    let response = try await request.response()
-    return response
+    try await getArtistData(
+      .getTopTracks,
+      for: artist,
+      autocorrect: autocorrect,
+      limit: limit,
+      page: page
+    )
   }
 
   /// Get similar artists to the specified artist on Last.fm.
@@ -380,18 +404,12 @@ extension UmeroKit {
     autocorrect: Bool = false,
     limit: Int = 50
   ) async throws -> [UArtist] {
-    var components = UURLComponents(apiKey: apiKey, endpoint: ArtistEndpoint.getSimilar)
-
-    var queryItems: [URLQueryItem] = [
-      URLQueryItem(name: "artist", value: artist),
-      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)"),
-      URLQueryItem(name: "limit", value: String(limit))
-    ]
-
-    components.items = queryItems
-
-    let request = UDataRequest<UArtistSimilar>(url: components.url)
-    let response = try await request.response()
+    let response: UArtistSimilar = try await getArtistData(
+      .getSimilar,
+      for: artist,
+      autocorrect: autocorrect,
+      limit: limit
+    )
     return response.artists
   }
 
@@ -417,7 +435,7 @@ extension UmeroKit {
   ) async throws -> [UTag] {
     var components = UURLComponents(apiKey: apiKey, endpoint: ArtistEndpoint.getTags)
 
-    var queryItems: [URLQueryItem] = [
+    let queryItems: [URLQueryItem] = [
       URLQueryItem(name: "artist", value: artist),
       URLQueryItem(name: "user", value: username)
     ]
@@ -449,18 +467,7 @@ extension UmeroKit {
     for artist: String,
     autocorrect: Bool = false
   ) async throws -> UTopTags {
-    var components = UURLComponents(apiKey: apiKey, endpoint: ArtistEndpoint.getTopTags)
-
-    let queryItems: [URLQueryItem] = [
-      URLQueryItem(name: "artist", value: artist),
-      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)")
-    ]
-
-    components.items = queryItems
-
-    let request = UDataRequest<UTopTags>(url: components.url)
-    let response = try await request.response()
-    return response
+    try await getArtistData(.getTopTags, for: artist, autocorrect: autocorrect)
   }
 }
 

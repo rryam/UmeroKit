@@ -34,7 +34,8 @@ extension UArtistSimilar: Decodable {
 
 extension UArtistSimilar: Encodable {
   public func encode(to encoder: Encoder) throws {
-    // TO:DO
+    var container = encoder.container(keyedBy: MainKey.self)
+    var artistsContainer = container.nestedContainer(keyedBy: CodingKeys.self, forKey: .similarartists)
+    try artistsContainer.encode(artists, forKey: .artist)
   }
 }
-
