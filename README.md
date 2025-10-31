@@ -11,6 +11,28 @@ A modern, thread-safe Swift library for integrating Last.fm API into your apps.
   <img src="https://github.com/rryam/UmeroKit/blob/main/UmeroKit.png" alt="UmeroKit Logo" width="256"/>
 </p>
 
+## Table of Contents
+
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Examples](#examples)
+  - [Get Top Charts](#get-top-charts)
+  - [Search by Country](#search-by-country)
+  - [Album Information](#album-information)
+  - [Artist Information](#artist-information)
+  - [Track Information](#track-information)
+  - [Scrobbling](#scrobbling)
+  - [Tag Exploration](#tag-exploration)
+  - [User Information](#user-information)
+- [Error Handling](#error-handling)
+- [Advanced Usage](#advanced-usage)
+  - [Multiple Instances](#multiple-instances)
+  - [Background Processing](#background-processing)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## Features
 
 - **Scrobbling** - Update now playing and scrobble tracks
