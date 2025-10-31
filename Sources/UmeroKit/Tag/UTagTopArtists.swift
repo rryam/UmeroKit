@@ -38,3 +38,13 @@ extension UTagTopArtists: Decodable {
 }
 
 extension UTagTopArtists: UTagRequestable {}
+
+extension UTagTopArtists: Encodable {
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: MainKey.self)
+    var artistsContainer = container.nestedContainer(keyedBy: CodingKeys.self, forKey: .topartists)
+    
+    try artistsContainer.encode(artists, forKey: .artist)
+    try artistsContainer.encode(attributes, forKey: .attributes)
+  }
+}

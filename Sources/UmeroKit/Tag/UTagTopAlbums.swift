@@ -39,3 +39,13 @@ extension UTagTopAlbums: Decodable {
 }
 
 extension UTagTopAlbums: UTagRequestable {}
+
+extension UTagTopAlbums: Encodable {
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: MainKey.self)
+    var albumsContainer = container.nestedContainer(keyedBy: CodingKeys.self, forKey: .albums)
+    
+    try albumsContainer.encode(albums, forKey: .album)
+    try albumsContainer.encode(attributes, forKey: .attributes)
+  }
+}

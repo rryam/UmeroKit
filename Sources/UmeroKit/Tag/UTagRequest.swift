@@ -50,4 +50,3 @@ struct UTagRequest<UTagItemType> where UTagItemType: UTagRequestable, UTagItemTy
     return model
   }
 }
-

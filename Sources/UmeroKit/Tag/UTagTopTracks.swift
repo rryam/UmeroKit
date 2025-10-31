@@ -39,3 +39,13 @@ extension UTagTopTracks: Decodable {
 }
 
 extension UTagTopTracks: UTagRequestable {}
+
+extension UTagTopTracks: Encodable {
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: MainKey.self)
+    var tracksContainer = container.nestedContainer(keyedBy: CodingKeys.self, forKey: .tracks)
+    
+    try tracksContainer.encode(tracks, forKey: .track)
+    try tracksContainer.encode(attributes, forKey: .attributes)
+  }
+}
