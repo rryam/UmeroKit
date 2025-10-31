@@ -461,6 +461,163 @@ extension UmeroKit {
     let response = try await request.response()
     return response.results
   }
+
+  /// Get the metadata for a track on Last.fm.
+  ///
+  ///  Example:
+  ///   ```swift
+  ///  do  {
+  ///    let umero = UmeroKit(apiKey: apiKey)
+  ///    let track = try await umero.trackInfo(for: "Bohemian Rhapsody", artist: "Queen")
+  ///  } catch {
+  ///    print("Error fetching track info: \(error).")
+  ///  }
+  ///  ```
+  ///
+  /// - Parameters:
+  ///   - track: The track name.
+  ///   - artist: The artist name.
+  ///   - autocorrect: Transform misspelled track names into correct track names (default: false).
+  ///   - username: Username whose context to get the track info in (optional).
+  /// - Returns: A `UTrack` object containing the track metadata.
+  public func trackInfo(
+    for track: String,
+    artist: String,
+    autocorrect: Bool = false,
+    username: String? = nil
+  ) async throws -> UTrack {
+    var components = UURLComponents(apiKey: apiKey, endpoint: TrackEndpoint.getInfo)
+
+    var queryItems: [URLQueryItem] = [
+      URLQueryItem(name: "track", value: track),
+      URLQueryItem(name: "artist", value: artist),
+      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)")
+    ]
+
+    if let username {
+      queryItems.append(URLQueryItem(name: "username", value: username))
+    }
+
+    components.items = queryItems
+
+    let request = UDataRequest<UTrackInfo>(url: components.url)
+    let response = try await request.response()
+    return response.track
+  }
+
+  /// Get the tags applied by an individual user to a track on Last.fm.
+  ///
+  ///  Example:
+  ///   ```swift
+  ///  do  {
+  ///    let umero = UmeroKit(apiKey: apiKey)
+  ///    let tags = try await umero.trackTags(for: "Bohemian Rhapsody", artist: "Queen", username: "rj")
+  ///  } catch {
+  ///    print("Error fetching track tags: \(error).")
+  ///  }
+  ///  ```
+  ///
+  /// - Parameters:
+  ///   - track: The track name.
+  ///   - artist: The artist name.
+  ///   - username: The username whose tags you want to retrieve.
+  /// - Returns: An array of `UTag` objects representing the tags.
+  public func trackTags(
+    for track: String,
+    artist: String,
+    username: String
+  ) async throws -> [UTag] {
+    var components = UURLComponents(apiKey: apiKey, endpoint: TrackEndpoint.getTags)
+
+    var queryItems: [URLQueryItem] = [
+      URLQueryItem(name: "track", value: track),
+      URLQueryItem(name: "artist", value: artist),
+      URLQueryItem(name: "user", value: username)
+    ]
+
+    components.items = queryItems
+
+    let request = UDataRequest<UTrackTags>(url: components.url)
+    let response = try await request.response()
+    return response.tags.tag
+  }
+
+  /// Get the top tags for a track on Last.fm, ordered by popularity.
+  ///
+  ///  Example:
+  ///   ```swift
+  ///  do  {
+  ///    let umero = UmeroKit(apiKey: apiKey)
+  ///    let tags = try await umero.trackTopTags(for: "Bohemian Rhapsody", artist: "Queen")
+  ///  } catch {
+  ///    print("Error fetching top tags: \(error).")
+  ///  }
+  ///  ```
+  ///
+  /// - Parameters:
+  ///   - track: The track name.
+  ///   - artist: The artist name.
+  ///   - autocorrect: Transform misspelled track names into correct track names (default: false).
+  /// - Returns: A `UTopTags` object containing the top tags.
+  public func trackTopTags(
+    for track: String,
+    artist: String,
+    autocorrect: Bool = false
+  ) async throws -> UTopTags {
+    var components = UURLComponents(apiKey: apiKey, endpoint: TrackEndpoint.getTopTags)
+
+    var queryItems: [URLQueryItem] = [
+      URLQueryItem(name: "track", value: track),
+      URLQueryItem(name: "artist", value: artist),
+      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)")
+    ]
+
+    components.items = queryItems
+
+    let request = UDataRequest<UTopTags>(url: components.url)
+    let response = try await request.response()
+    return response
+  }
+
+  /// Get similar tracks to the specified track on Last.fm.
+  ///
+  ///  Example:
+  ///   ```swift
+  ///  do  {
+  ///    let umero = UmeroKit(apiKey: apiKey)
+  ///    let similarTracks = try await umero.similarTracks(for: "Bohemian Rhapsody", artist: "Queen")
+  ///  } catch {
+  ///    print("Error fetching similar tracks: \(error).")
+  ///  }
+  ///  ```
+  ///
+  /// - Parameters:
+  ///   - track: The track name.
+  ///   - artist: The artist name.
+  ///   - autocorrect: Transform misspelled track names into correct track names (default: false).
+  ///   - limit: The number of similar tracks to retrieve (default: 50).
+  /// - Returns: An array of `UTrack` objects representing similar tracks.
+  public func similarTracks(
+    for track: String,
+    artist: String,
+    autocorrect: Bool = false,
+    limit: Int = 50
+  ) async throws -> [UTrack] {
+    var components = UURLComponents(apiKey: apiKey, endpoint: TrackEndpoint.getSimilar)
+
+    let queryItems: [URLQueryItem] = [
+      URLQueryItem(name: "track", value: track),
+      URLQueryItem(name: "artist", value: artist),
+      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)"),
+      URLQueryItem(name: "limit", value: String(limit))
+    ]
+
+    components.items = queryItems
+
+    let request = UDataRequest<UTrackSimilar>(url: components.url)
+    let response = try await request.response()
+    return response.tracks
+  }
 }
 
 extension Bool {
