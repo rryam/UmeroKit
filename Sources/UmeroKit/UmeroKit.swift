@@ -8,6 +8,8 @@
 import Foundation
 import CryptoKit
 
+// swiftlint:disable file_length
+
 struct UItemCollection: Codable {
   let album: UAlbum
 }
@@ -462,6 +464,36 @@ extension UmeroKit {
     return response.results
   }
 
+  /// Helper function to fetch track data from Last.fm API endpoints.
+  ///
+  /// - Parameters:
+  ///   - endpoint: The track endpoint to call.
+  ///   - track: The track name.
+  ///   - artist: The artist name.
+  ///   - autocorrect: Transform misspelled track names into correct track names (default: false).
+  ///   - additionalItems: Additional query items to add (e.g., username, limit).
+  /// - Returns: The decoded response model of type `T`.
+  private func getTrackData<T: Codable>(
+    _ endpoint: TrackEndpoint,
+    for track: String,
+    artist: String,
+    autocorrect: Bool = false,
+    additionalItems: [URLQueryItem] = []
+  ) async throws -> T {
+    var components = UURLComponents(apiKey: apiKey, endpoint: endpoint)
+    var queryItems: [URLQueryItem] = [
+      URLQueryItem(name: "track", value: track),
+      URLQueryItem(name: "artist", value: artist),
+      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)")
+    ]
+    queryItems.append(contentsOf: additionalItems)
+    
+    components.items = queryItems
+    
+    let request = UDataRequest<T>(url: components.url)
+    return try await request.response()
+  }
+
   /// Get the metadata for a track on Last.fm.
   ///
   ///  Example:
@@ -486,22 +518,18 @@ extension UmeroKit {
     autocorrect: Bool = false,
     username: String? = nil
   ) async throws -> UTrack {
-    var components = UURLComponents(apiKey: apiKey, endpoint: TrackEndpoint.getInfo)
-
-    var queryItems: [URLQueryItem] = [
-      URLQueryItem(name: "track", value: track),
-      URLQueryItem(name: "artist", value: artist),
-      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)")
-    ]
-
+    var additionalItems: [URLQueryItem] = []
     if let username {
-      queryItems.append(URLQueryItem(name: "username", value: username))
+      additionalItems.append(URLQueryItem(name: "username", value: username))
     }
-
-    components.items = queryItems
-
-    let request = UDataRequest<UTrackInfo>(url: components.url)
-    let response = try await request.response()
+    
+    let response: UTrackInfo = try await getTrackData(
+      .getInfo,
+      for: track,
+      artist: artist,
+      autocorrect: autocorrect,
+      additionalItems: additionalItems
+    )
     return response.track
   }
 
@@ -527,18 +555,12 @@ extension UmeroKit {
     artist: String,
     username: String
   ) async throws -> [UTag] {
-    var components = UURLComponents(apiKey: apiKey, endpoint: TrackEndpoint.getTags)
-
-    var queryItems: [URLQueryItem] = [
-      URLQueryItem(name: "track", value: track),
-      URLQueryItem(name: "artist", value: artist),
-      URLQueryItem(name: "user", value: username)
-    ]
-
-    components.items = queryItems
-
-    let request = UDataRequest<UTrackTags>(url: components.url)
-    let response = try await request.response()
+    let response: UTrackTags = try await getTrackData(
+      .getTags,
+      for: track,
+      artist: artist,
+      additionalItems: [URLQueryItem(name: "user", value: username)]
+    )
     return response.tags.tag
   }
 
@@ -564,19 +586,7 @@ extension UmeroKit {
     artist: String,
     autocorrect: Bool = false
   ) async throws -> UTopTags {
-    var components = UURLComponents(apiKey: apiKey, endpoint: TrackEndpoint.getTopTags)
-
-    var queryItems: [URLQueryItem] = [
-      URLQueryItem(name: "track", value: track),
-      URLQueryItem(name: "artist", value: artist),
-      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)")
-    ]
-
-    components.items = queryItems
-
-    let request = UDataRequest<UTopTags>(url: components.url)
-    let response = try await request.response()
-    return response
+    try await getTrackData(.getTopTags, for: track, artist: artist, autocorrect: autocorrect)
   }
 
   /// Get similar tracks to the specified track on Last.fm.
@@ -603,19 +613,13 @@ extension UmeroKit {
     autocorrect: Bool = false,
     limit: Int = 50
   ) async throws -> [UTrack] {
-    var components = UURLComponents(apiKey: apiKey, endpoint: TrackEndpoint.getSimilar)
-
-    let queryItems: [URLQueryItem] = [
-      URLQueryItem(name: "track", value: track),
-      URLQueryItem(name: "artist", value: artist),
-      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)"),
-      URLQueryItem(name: "limit", value: String(limit))
-    ]
-
-    components.items = queryItems
-
-    let request = UDataRequest<UTrackSimilar>(url: components.url)
-    let response = try await request.response()
+    let response: UTrackSimilar = try await getTrackData(
+      .getSimilar,
+      for: track,
+      artist: artist,
+      autocorrect: autocorrect,
+      additionalItems: [URLQueryItem(name: "limit", value: String(limit))]
+    )
     return response.tracks
   }
 }

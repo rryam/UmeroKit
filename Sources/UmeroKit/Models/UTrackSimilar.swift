@@ -34,7 +34,8 @@ extension UTrackSimilar: Decodable {
 
 extension UTrackSimilar: Encodable {
   public func encode(to encoder: Encoder) throws {
-    // TO:DO
+    var container = encoder.container(keyedBy: MainKey.self)
+    var tracksContainer = container.nestedContainer(keyedBy: CodingKeys.self, forKey: .similartracks)
+    try tracksContainer.encode(tracks, forKey: .track)
   }
 }
-

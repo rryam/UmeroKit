@@ -22,31 +22,15 @@ extension UTrackTags: Decodable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     
-    // Handle case where tags might be empty string or have nested structure
-    if let tagsString = try? container.decode(String.self, forKey: .tags),
-       tagsString.trimmingCharacters(in: .whitespaces).isEmpty {
-      // Empty tags case
-      self.tags = UTags(tag: [])
-    } else {
-      // Try to decode as nested UTags structure
-      let tagsContainer = try container.nestedContainer(keyedBy: UTags.CodingKeys.self, forKey: .tags)
-      if let tagArray = try? tagsContainer.decode([UTag].self, forKey: .tag) {
-        self.tags = UTags(tag: tagArray)
-      } else {
-        self.tags = UTags(tag: [])
-      }
-    }
-  }
-}
-
-extension UTags {
-  enum CodingKeys: String, CodingKey {
-    case tag
+    // Use try? to gracefully handle cases where tags key exists but contains invalid data
+    // (e.g., empty object {} or empty string when no tags exist), allowing fallback to empty tags
+    self.tags = (try? container.decode(UTags.self, forKey: .tags)) ?? UTags(tag: [])
   }
 }
 
 extension UTrackTags: Encodable {
   public func encode(to encoder: Encoder) throws {
-    // TO:DO
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(tags, forKey: .tags)
   }
 }
