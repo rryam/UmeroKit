@@ -71,14 +71,9 @@ extension UmeroKit {
     addQueryItemIfPresent("period", value: period)
     addQueryItemIfPresent("from", value: from.map { String($0) })
     addQueryItemIfPresent("to", value: to.map { String($0) })
-    
-    if let extended {
-      queryItems.append(URLQueryItem(name: "extended", value: "\(extended.intValue)"))
-    }
-    
+    addQueryItemIfPresent("extended", value: extended.map { "\($0.intValue)" })
     addQueryItemIfPresent("taggingtype", value: taggingtype)
     addQueryItemIfPresent("tag", value: tag)
-
     components.items = queryItems
 
     let request = UDataRequest<T>(url: components.url)

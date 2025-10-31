@@ -16,9 +16,10 @@ extension UmeroKit {
 
     var components = UURLComponents(apiKey: apiKey, endpoint: ArtistEndpoint.getInfo)
 
-    var queryItems: [URLQueryItem] = []
-    queryItems.append(URLQueryItem(name: "artist", value: artist))
-    queryItems.append(URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)"))
+    var queryItems: [URLQueryItem] = [
+      URLQueryItem(name: "artist", value: artist),
+      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)")
+    ]
 
     if let username {
       queryItems.append(URLQueryItem(name: "username", value: username))
@@ -94,7 +95,6 @@ extension UmeroKit {
     if let username {
       queryItems.append(URLQueryItem(name: "user", value: username))
     }
-
     components.items = queryItems
 
     let request = UDataRequest<T>(url: components.url)

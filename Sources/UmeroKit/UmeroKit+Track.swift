@@ -34,7 +34,6 @@ extension UmeroKit {
     if let artist = artist, !artist.isEmpty {
       queryItems.append(URLQueryItem(name: "artist", value: artist))
     }
-
     components.items = queryItems
 
     let request = UDataRequest<UTrackSearch>(url: components.url)
@@ -65,9 +64,8 @@ extension UmeroKit {
       URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)")
     ]
     queryItems.append(contentsOf: additionalItems)
-    
     components.items = queryItems
-    
+
     let request = UDataRequest<T>(url: components.url)
     return try await request.response()
   }

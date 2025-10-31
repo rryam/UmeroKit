@@ -13,13 +13,11 @@ extension UmeroKit {
                       language: String? = nil) async throws -> UTag {
     var components = UURLComponents(apiKey: apiKey, endpoint: TagEndpoint.getInfo)
 
-    var queryItems: [URLQueryItem] = []
-    queryItems.append(URLQueryItem(name: "tag", value: tag))
+    var queryItems: [URLQueryItem] = [URLQueryItem(name: "tag", value: tag)]
 
     if let language {
       queryItems.append(URLQueryItem(name: "language", value: language))
     }
-
     components.items = queryItems
 
     let request = UDataRequest<UTagInfo>(url: components.url)

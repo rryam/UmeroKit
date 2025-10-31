@@ -29,7 +29,6 @@ extension UmeroKit {
     if let language {
       queryItems.append(URLQueryItem(name: "language", value: language))
     }
-
     components.items = queryItems
 
     let request = UDataRequest<UItemCollection>(url: components.url)
@@ -55,7 +54,6 @@ extension UmeroKit {
     if let language {
       queryItems.append(URLQueryItem(name: "language", value: language))
     }
-
     components.items = queryItems
 
     let request = UDataRequest<UItemCollection>(url: components.url)
@@ -70,10 +68,11 @@ extension UmeroKit {
                            language: String? = nil) async throws -> UTopTags {
     var components = UURLComponents(apiKey: apiKey, endpoint: AlbumEndpoint.getTopTags)
 
-    var queryItems: [URLQueryItem] = []
-    queryItems.append(URLQueryItem(name: "album", value: album))
-    queryItems.append(URLQueryItem(name: "artist", value: artist))
-    queryItems.append(URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)"))
+    var queryItems: [URLQueryItem] = [
+      URLQueryItem(name: "album", value: album),
+      URLQueryItem(name: "artist", value: artist),
+      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)")
+    ]
 
     if let username {
       queryItems.append(URLQueryItem(name: "username", value: username))
@@ -82,7 +81,6 @@ extension UmeroKit {
     if let language {
       queryItems.append(URLQueryItem(name: "language", value: language))
     }
-
     components.items = queryItems
 
     let request = UDataRequest<UTopTags>(url: components.url)
@@ -140,7 +138,6 @@ extension UmeroKit {
       URLQueryItem(name: "artist", value: artist),
       URLQueryItem(name: "user", value: username)
     ]
-
     components.items = queryItems
 
     let request = UDataRequest<UAlbumTags>(url: components.url)
