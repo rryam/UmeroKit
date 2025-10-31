@@ -41,16 +41,7 @@ public struct UDataPostRequest<Model: Codable>: Sendable {
   /// Write data to the last.fm endpoint that
   /// the URL request defines.
   public func response() async throws -> Model {
-    guard let url else {
-      throw UmeroKitError.invalidURL
-    }
-
-    var urlRequest = URLRequest(url: url)
-    urlRequest.httpMethod = "POST"
-    urlRequest.httpBody = data
-    urlRequest.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-
-    let (urlRequestData, _) = try await URLSession.shared.data(for: urlRequest)
+    let urlRequestData = try await responseData()
 
     #if DEBUG
     if let jsonString = try? urlRequestData.printJSON() {
