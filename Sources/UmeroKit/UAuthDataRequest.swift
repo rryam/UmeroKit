@@ -67,7 +67,7 @@ struct UAuthDataRequest {
     // Validate session key is present and not empty
     guard !response.session.key.isEmpty else {
         throw UmeroKitError.authenticationFailed(
-            code: response.error ?? 0,
+            code: response.error ?? -1,
             message: response.message ?? "Authentication failed: Session key is missing"
         )
     }
