@@ -227,6 +227,43 @@ extension UmeroKit {
     let response = try await request.response()
     return response.results
   }
+
+  /// Get the tags applied by an individual user to an album on Last.fm.
+  ///
+  ///  Example:
+  ///   ```swift
+  ///  do  {
+  ///    let umero = UmeroKit(apiKey: apiKey)
+  ///    let tags = try await umero.albumTags(for: "OK Computer", artist: "Radiohead", username: "rj")
+  ///  } catch {
+  ///    print("Error fetching album tags: \(error).")
+  ///  }
+  ///  ```
+  ///
+  /// - Parameters:
+  ///   - album: The album name.
+  ///   - artist: The artist name.
+  ///   - username: The username whose tags you want to retrieve.
+  /// - Returns: An array of `UTag` objects representing the tags.
+  public func albumTags(
+    for album: String,
+    artist: String,
+    username: String
+  ) async throws -> [UTag] {
+    var components = UURLComponents(apiKey: apiKey, endpoint: AlbumEndpoint.getTags)
+
+    let queryItems: [URLQueryItem] = [
+      URLQueryItem(name: "album", value: album),
+      URLQueryItem(name: "artist", value: artist),
+      URLQueryItem(name: "user", value: username)
+    ]
+
+    components.items = queryItems
+
+    let request = UDataRequest<UAlbumTags>(url: components.url)
+    let response = try await request.response()
+    return response.tags.tag
+  }
 }
 
 // MARK: - ARTIST
