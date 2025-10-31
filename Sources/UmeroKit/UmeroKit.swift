@@ -285,22 +285,27 @@ extension UmeroKit {
   /// - Parameters:
   ///   - endpoint: The artist endpoint to call.
   ///   - artist: The artist name.
-  ///   - autocorrect: Transform misspelled artist names into correct artist names (default: false).
+  ///   - autocorrect: Transform misspelled artist names into correct artist names (optional).
   ///   - limit: The number of items to retrieve (optional).
   ///   - page: The page of results to retrieve (optional).
+  ///   - username: The username for user-specific endpoints (optional).
   /// - Returns: The decoded response model of type `T`.
-  private func getArtistData<T: Codable>(
+  private func getArtistData<T: Decodable>(
     _ endpoint: ArtistEndpoint,
     for artist: String,
-    autocorrect: Bool = false,
+    autocorrect: Bool? = nil,
     limit: Int? = nil,
-    page: Int? = nil
+    page: Int? = nil,
+    username: String? = nil
   ) async throws -> T {
     var components = UURLComponents(apiKey: apiKey, endpoint: endpoint)
     var queryItems: [URLQueryItem] = [
-      URLQueryItem(name: "artist", value: artist),
-      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)")
+      URLQueryItem(name: "artist", value: artist)
     ]
+
+    if let autocorrect {
+      queryItems.append(URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)"))
+    }
 
     if let limit {
       queryItems.append(URLQueryItem(name: "limit", value: String(limit)))
@@ -308,6 +313,10 @@ extension UmeroKit {
 
     if let page {
       queryItems.append(URLQueryItem(name: "page", value: String(page)))
+    }
+
+    if let username {
+      queryItems.append(URLQueryItem(name: "user", value: username))
     }
 
     components.items = queryItems
@@ -433,17 +442,11 @@ extension UmeroKit {
     for artist: String,
     username: String
   ) async throws -> [UTag] {
-    var components = UURLComponents(apiKey: apiKey, endpoint: ArtistEndpoint.getTags)
-
-    let queryItems: [URLQueryItem] = [
-      URLQueryItem(name: "artist", value: artist),
-      URLQueryItem(name: "user", value: username)
-    ]
-
-    components.items = queryItems
-
-    let request = UDataRequest<UArtistTags>(url: components.url)
-    let response = try await request.response()
+    let response: UArtistTags = try await getArtistData(
+      .getTags,
+      for: artist,
+      username: username
+    )
     return response.tags.tag
   }
 

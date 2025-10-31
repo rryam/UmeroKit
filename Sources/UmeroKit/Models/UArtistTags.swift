@@ -27,10 +27,3 @@ extension UArtistTags: Decodable {
     self.tags = try container.decodeIfPresent(UTags.self, forKey: .tags) ?? UTags(tag: [])
   }
 }
-
-extension UArtistTags: Encodable {
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(tags, forKey: .tags)
-  }
-}

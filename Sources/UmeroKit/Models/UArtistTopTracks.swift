@@ -28,7 +28,7 @@ public struct UArtistTopTrack {
   public let url: URL
   
   /// Streamable flag indicating if the track can be streamed.
-  public let streamable: String
+  public let streamable: Bool
   
   /// Images associated with the track.
   public let image: [UImage]
@@ -50,7 +50,7 @@ extension UArtistTopTrack: Decodable {
     self.mbid = mbid.map { UItemID(rawValue: $0) }
     
     let streamableString = try container.decodeIfPresent(String.self, forKey: .streamable)
-    self.streamable = streamableString ?? "0"
+    self.streamable = streamableString == "1"
     
     let playcountString = try container.decodeIfPresent(String.self, forKey: .playcount)
     if let playcountString, !playcountString.isEmpty {
@@ -84,7 +84,7 @@ extension UArtistTopTrack: Encodable {
     try container.encodeIfPresent(mbid?.rawValue, forKey: .mbid)
     try container.encode(String(playcount), forKey: .playcount)
     try container.encode(String(listeners), forKey: .listeners)
-    try container.encode(streamable, forKey: .streamable)
+    try container.encode(streamable ? "1" : "0", forKey: .streamable)
   }
 }
 
@@ -115,14 +115,5 @@ extension UArtistTopTracks: Decodable {
 
     self.tracks = try tracksContainer.decode([UArtistTopTrack].self, forKey: .track)
     self.attributes = try tracksContainer.decode(UArtistTopItemsAttributes.self, forKey: .attributes)
-  }
-}
-
-extension UArtistTopTracks: Encodable {
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: MainKey.self)
-    var tracksContainer = container.nestedContainer(keyedBy: CodingKeys.self, forKey: .toptracks)
-    try tracksContainer.encode(tracks, forKey: .track)
-    try tracksContainer.encode(attributes, forKey: .attributes)
   }
 }

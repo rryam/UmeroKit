@@ -133,17 +133,8 @@ extension UArtistTopAlbums: Decodable {
   }
 }
 
-extension UArtistTopAlbums: Encodable {
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: MainKey.self)
-    var albumsContainer = container.nestedContainer(keyedBy: CodingKeys.self, forKey: .topalbums)
-    try albumsContainer.encode(albums, forKey: .album)
-    try albumsContainer.encode(attributes, forKey: .attributes)
-  }
-}
-
 /// Represents attributes for artist top items requests.
-public struct UArtistTopItemsAttributes: Codable {
+public struct UArtistTopItemsAttributes: Decodable {
   /// The artist name.
   public let artist: String
 
@@ -168,49 +159,21 @@ extension UArtistTopItemsAttributes {
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    artist = try container.decode(String.self, forKey: .artist)
+    let artistName = try container.decode(String.self, forKey: .artist)
 
     // Helper function to decode numeric values from strings
     func decodeNumeric<T: LosslessStringConvertible>(_ key: CodingKeys) throws -> T {
       let stringValue = try container.decode(String.self, forKey: key)
       guard let value = T(stringValue) else {
-        throw UmeroKitError.invalidDataFormat("\(key.stringValue) is not a valid number for artist '\(artist)'")
+        throw UmeroKitError.invalidDataFormat("\(key.stringValue) is not a valid number for artist '\(artistName)'")
       }
       return value
     }
 
-    let pageString = try container.decode(String.self, forKey: .page)
-    let perPageString = try container.decode(String.self, forKey: .perPage)
-    let totalPagesString = try container.decode(String.self, forKey: .totalPages)
-    let totalString = try container.decode(String.self, forKey: .total)
-
-    guard let page = Int(pageString) else {
-      throw UmeroKitError.invalidDataFormat("Page is not a valid number for artist '\(artist)'")
-    }
-    self.page = page
-
-    guard let perPage = Int(perPageString) else {
-      throw UmeroKitError.invalidDataFormat("PerPage is not a valid number for artist '\(artist)'")
-    }
-    self.perPage = perPage
-
-    guard let totalPages = Double(totalPagesString) else {
-      throw UmeroKitError.invalidDataFormat("TotalPages is not a valid number for artist '\(artist)'")
-    }
-    self.totalPages = totalPages
-
-    guard let total = Double(totalString) else {
-      throw UmeroKitError.invalidDataFormat("Total is not a valid number for artist '\(artist)'")
-    }
-    self.total = total
-  }
-  
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(artist, forKey: .artist)
-    try container.encode(String(page), forKey: .page)
-    try container.encode(String(perPage), forKey: .perPage)
-    try container.encode(String(totalPages), forKey: .totalPages)
-    try container.encode(String(total), forKey: .total)
+    self.artist = artistName
+    self.page = try decodeNumeric(.page)
+    self.perPage = try decodeNumeric(.perPage)
+    self.totalPages = try decodeNumeric(.totalPages)
+    self.total = try decodeNumeric(.total)
   }
 }

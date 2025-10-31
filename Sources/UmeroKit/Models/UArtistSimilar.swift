@@ -31,11 +31,3 @@ extension UArtistSimilar: Decodable {
     self.artists = try artistsContainer.decode([UArtist].self, forKey: .artist)
   }
 }
-
-extension UArtistSimilar: Encodable {
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: MainKey.self)
-    var artistsContainer = container.nestedContainer(keyedBy: CodingKeys.self, forKey: .similarartists)
-    try artistsContainer.encode(artists, forKey: .artist)
-  }
-}
