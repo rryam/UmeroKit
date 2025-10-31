@@ -277,6 +277,191 @@ extension UmeroKit {
     let response = try await request.response()
     return response.results
   }
+
+  /// Get the top albums for an artist on Last.fm.
+  ///
+  ///  Example:
+  ///   ```swift
+  ///  do  {
+  ///    let umero = UmeroKit(apiKey: apiKey)
+  ///    let albums = try await umero.artistTopAlbums(for: "Radiohead")
+  ///  } catch {
+  ///    print("Error fetching top albums: \(error).")
+  ///  }
+  ///  ```
+  ///
+  /// - Parameters:
+  ///   - artist: The artist name.
+  ///   - autocorrect: Transform misspelled artist names into correct artist names (default: false).
+  ///   - limit: The number of albums to retrieve (default: 50).
+  ///   - page: The page of results to retrieve (default: 1).
+  /// - Returns: A `UArtistTopAlbums` object containing the top albums for the artist.
+  public func artistTopAlbums(
+    for artist: String,
+    autocorrect: Bool = false,
+    limit: Int = 50,
+    page: Int = 1
+  ) async throws -> UArtistTopAlbums {
+    var components = UURLComponents(apiKey: apiKey, endpoint: ArtistEndpoint.getTopAlbums)
+
+    var queryItems: [URLQueryItem] = [
+      URLQueryItem(name: "artist", value: artist),
+      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)"),
+      URLQueryItem(name: "limit", value: String(limit)),
+      URLQueryItem(name: "page", value: String(page))
+    ]
+
+    components.items = queryItems
+
+    let request = UDataRequest<UArtistTopAlbums>(url: components.url)
+    let response = try await request.response()
+    return response
+  }
+
+  /// Get the top tracks for an artist on Last.fm.
+  ///
+  ///  Example:
+  ///   ```swift
+  ///  do  {
+  ///    let umero = UmeroKit(apiKey: apiKey)
+  ///    let tracks = try await umero.artistTopTracks(for: "Radiohead")
+  ///  } catch {
+  ///    print("Error fetching top tracks: \(error).")
+  ///  }
+  ///  ```
+  ///
+  /// - Parameters:
+  ///   - artist: The artist name.
+  ///   - autocorrect: Transform misspelled artist names into correct artist names (default: false).
+  ///   - limit: The number of tracks to retrieve (default: 50).
+  ///   - page: The page of results to retrieve (default: 1).
+  /// - Returns: A `UArtistTopTracks` object containing the top tracks for the artist.
+  public func artistTopTracks(
+    for artist: String,
+    autocorrect: Bool = false,
+    limit: Int = 50,
+    page: Int = 1
+  ) async throws -> UArtistTopTracks {
+    var components = UURLComponents(apiKey: apiKey, endpoint: ArtistEndpoint.getTopTracks)
+
+    var queryItems: [URLQueryItem] = [
+      URLQueryItem(name: "artist", value: artist),
+      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)"),
+      URLQueryItem(name: "limit", value: String(limit)),
+      URLQueryItem(name: "page", value: String(page))
+    ]
+
+    components.items = queryItems
+
+    let request = UDataRequest<UArtistTopTracks>(url: components.url)
+    let response = try await request.response()
+    return response
+  }
+
+  /// Get similar artists to the specified artist on Last.fm.
+  ///
+  ///  Example:
+  ///   ```swift
+  ///  do  {
+  ///    let umero = UmeroKit(apiKey: apiKey)
+  ///    let similarArtists = try await umero.similarArtists(for: "Radiohead")
+  ///  } catch {
+  ///    print("Error fetching similar artists: \(error).")
+  ///  }
+  ///  ```
+  ///
+  /// - Parameters:
+  ///   - artist: The artist name.
+  ///   - autocorrect: Transform misspelled artist names into correct artist names (default: false).
+  ///   - limit: The number of similar artists to retrieve (default: 50).
+  /// - Returns: An array of `UArtist` objects representing similar artists.
+  public func similarArtists(
+    for artist: String,
+    autocorrect: Bool = false,
+    limit: Int = 50
+  ) async throws -> [UArtist] {
+    var components = UURLComponents(apiKey: apiKey, endpoint: ArtistEndpoint.getSimilar)
+
+    var queryItems: [URLQueryItem] = [
+      URLQueryItem(name: "artist", value: artist),
+      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)"),
+      URLQueryItem(name: "limit", value: String(limit))
+    ]
+
+    components.items = queryItems
+
+    let request = UDataRequest<UArtistSimilar>(url: components.url)
+    let response = try await request.response()
+    return response.artists
+  }
+
+  /// Get the tags applied by an individual user to an artist on Last.fm.
+  ///
+  ///  Example:
+  ///   ```swift
+  ///  do  {
+  ///    let umero = UmeroKit(apiKey: apiKey)
+  ///    let tags = try await umero.artistTags(for: "Radiohead", username: "rj")
+  ///  } catch {
+  ///    print("Error fetching artist tags: \(error).")
+  ///  }
+  ///  ```
+  ///
+  /// - Parameters:
+  ///   - artist: The artist name.
+  ///   - username: The username whose tags you want to retrieve.
+  /// - Returns: An array of `UTag` objects representing the tags.
+  public func artistTags(
+    for artist: String,
+    username: String
+  ) async throws -> [UTag] {
+    var components = UURLComponents(apiKey: apiKey, endpoint: ArtistEndpoint.getTags)
+
+    var queryItems: [URLQueryItem] = [
+      URLQueryItem(name: "artist", value: artist),
+      URLQueryItem(name: "user", value: username)
+    ]
+
+    components.items = queryItems
+
+    let request = UDataRequest<UArtistTags>(url: components.url)
+    let response = try await request.response()
+    return response.tags.tag
+  }
+
+  /// Get the top tags for an artist on Last.fm, ordered by popularity.
+  ///
+  ///  Example:
+  ///   ```swift
+  ///  do  {
+  ///    let umero = UmeroKit(apiKey: apiKey)
+  ///    let tags = try await umero.artistTopTags(for: "Radiohead")
+  ///  } catch {
+  ///    print("Error fetching top tags: \(error).")
+  ///  }
+  ///  ```
+  ///
+  /// - Parameters:
+  ///   - artist: The artist name.
+  ///   - autocorrect: Transform misspelled artist names into correct artist names (default: false).
+  /// - Returns: A `UTopTags` object containing the top tags.
+  public func artistTopTags(
+    for artist: String,
+    autocorrect: Bool = false
+  ) async throws -> UTopTags {
+    var components = UURLComponents(apiKey: apiKey, endpoint: ArtistEndpoint.getTopTags)
+
+    let queryItems: [URLQueryItem] = [
+      URLQueryItem(name: "artist", value: artist),
+      URLQueryItem(name: "autocorrect", value: "\(autocorrect.intValue)")
+    ]
+
+    components.items = queryItems
+
+    let request = UDataRequest<UTopTags>(url: components.url)
+    let response = try await request.response()
+    return response
+  }
 }
 
 // MARK: - TAG
