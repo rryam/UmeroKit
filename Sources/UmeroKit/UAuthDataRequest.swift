@@ -26,37 +26,50 @@ struct UAuthDataRequest {
 
   func response() async throws -> USession.Session {
     let endpoint = AuthEndpoint.getMobileSession
-    var components = UURLComponents(apiKey: self.apiKey, endpoint: endpoint)
+    let components = UURLPostComponents()
     var signature = ""
 
-    let signatureParameters = [
+    var parameters: [String: String] = [
       "method": endpoint.path,
       "api_key": apiKey,
       "password": password,
       "username": username
     ]
 
-    for key in signatureParameters.keys.sorted() {
-      signature += "\(key)\(signatureParameters[key]!)"
+    for (key, value) in parameters.sorted(by: { $0.key < $1.key }) {
+      signature += "\(key)\(value)"
     }
 
     signature += secret
 
     let hashedSignature = MD5Helper.hash(signature)
 
-    let parameters = [
-      "username": username,
-      "password": password,
-      "api_sig": hashedSignature]
+    parameters["api_sig"] = hashedSignature
 
-    components.items = parameters.map { URLQueryItem(name: $0, value: $1) }
+    let bodyString = parameters
+      .sorted(by: { $0.key < $1.key })
+      .map { key, value -> String in
+        let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value
+        return "\(key)=\(encodedValue)"
+      }
+      .joined(separator: "&")
 
-    let request = UDataPostRequest<USession>(url: components.url)
+    let postData = bodyString.data(using: .utf8)
+
+    let request = UDataPostRequest<USession>(url: components.url, data: postData)
     let response = try await request.response()
 
     // Check if both error and message are present
     if let errorCode = response.error, let errorMessage = response.message {
         throw UmeroKitError.authenticationFailed(code: errorCode, message: errorMessage)
+    }
+    
+    // Validate session key is present and not empty
+    guard !response.session.key.isEmpty else {
+        throw UmeroKitError.authenticationFailed(
+            code: response.error ?? 0,
+            message: response.message ?? "Authentication failed: Session key is missing"
+        )
     }
 
     return response.session

@@ -48,10 +48,15 @@ public struct UDataPostRequest<Model: Codable>: Sendable {
     var urlRequest = URLRequest(url: url)
     urlRequest.httpMethod = "POST"
     urlRequest.httpBody = data
+    urlRequest.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
 
     let (urlRequestData, _) = try await URLSession.shared.data(for: urlRequest)
 
-    print(try urlRequestData.printJSON())
+    #if DEBUG
+    if let jsonString = try? urlRequestData.printJSON() {
+      print(jsonString)
+    }
+    #endif
 
     let decoder = JSONDecoder()
     decoder.dateDecodingStrategy = .iso8601
@@ -68,6 +73,7 @@ public struct UDataPostRequest<Model: Codable>: Sendable {
     var urlRequest = URLRequest(url: url)
     urlRequest.httpMethod = "POST"
     urlRequest.httpBody = data
+    urlRequest.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
     let (urlRequestData, _) = try await URLSession.shared.data(for: urlRequest)
     return urlRequestData
   }

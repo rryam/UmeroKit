@@ -31,10 +31,10 @@ extension UGeoTracks {
 extension UGeoTracks: Decodable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: MainKey.self)
-    let artistsContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .tracks)
+    let tracksContainer = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .tracks)
 
-    self.tracks = try artistsContainer.decode([UTrack].self, forKey: .track)
-    self.attributes = try artistsContainer.decode(UGeoAttributes.self, forKey: .attributes)
+    self.tracks = try tracksContainer.decode([UTrack].self, forKey: .track)
+    self.attributes = try tracksContainer.decode(UGeoAttributes.self, forKey: .attributes)
   }
 }
 
