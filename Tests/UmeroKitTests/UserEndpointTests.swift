@@ -181,15 +181,36 @@ struct UserEndpointTests {
     #expect(attributes.totalPages == 10)
     #expect(attributes.total == 500)
 
-    // Test URecentTrackArtist
-    let artist = URecentTrackArtist(name: "Test Artist", mbid: UItemID(rawValue: "test-mbid"))
-    #expect(artist.name == "Test Artist")
-    #expect(artist.mbid?.rawValue == "test-mbid")
-
+    // Test URecentTrackArtist with actual API format (#text for name)
+    let artistJSON = """
+    {
+      "mbid": "4fa5eab2-270a-44e9-bc84-cf9f00766c75",
+      "#text": "Mario Vazquez"
+    }
+    """.data(using: .utf8)!
+    
+    do {
+      let artist = try JSONDecoder().decode(URecentTrackArtist.self, from: artistJSON)
+      #expect(artist.name == "Mario Vazquez")
+      #expect(artist.mbid?.rawValue == "4fa5eab2-270a-44e9-bc84-cf9f00766c75")
+    } catch {
+      #expect(Bool(false), "Failed to decode URecentTrackArtist: \(error)")
+    }
+    
     // Test URecentTrackArtist without mbid
-    let artistNoMbid = URecentTrackArtist(name: "Test Artist", mbid: nil)
-    #expect(artistNoMbid.name == "Test Artist")
-    #expect(artistNoMbid.mbid == nil)
+    let artistNoMbidJSON = """
+    {
+      "#text": "Test Artist"
+    }
+    """.data(using: .utf8)!
+    
+    do {
+      let artistNoMbid = try JSONDecoder().decode(URecentTrackArtist.self, from: artistNoMbidJSON)
+      #expect(artistNoMbid.name == "Test Artist")
+      #expect(artistNoMbid.mbid == nil)
+    } catch {
+      #expect(Bool(false), "Failed to decode URecentTrackArtist without mbid: \(error)")
+    }
   }
 
   @Test("User endpoint authentication requirements")

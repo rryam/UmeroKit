@@ -18,7 +18,6 @@ public struct URecentTrackArtist {
 
 extension URecentTrackArtist {
   enum CodingKeys: String, CodingKey {
-    case name
     case mbid
     case text = "#text"
   }
@@ -28,12 +27,8 @@ extension URecentTrackArtist: Decodable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     
-    // Try to decode as #text first (API sometimes returns just #text)
-    if let text = try? container.decode(String.self, forKey: .text) {
-      self.name = text
-    } else {
-      self.name = try container.decode(String.self, forKey: .name)
-    }
+    // API returns artist name as #text, not name
+    self.name = try container.decode(String.self, forKey: .text)
     
     let mbid = try container.decodeIfPresent(String.self, forKey: .mbid)
     self.mbid = mbid.map { UItemID(rawValue: $0) }
@@ -43,7 +38,7 @@ extension URecentTrackArtist: Decodable {
 extension URecentTrackArtist: Encodable {
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(name, forKey: .name)
+    try container.encode(name, forKey: .text)
     try container.encodeIfPresent(mbid?.rawValue, forKey: .mbid)
   }
 }
