@@ -39,5 +39,7 @@ identifier_name:
 opt_in_rules:
   - array_init
   - empty_count
-  - explicit_self
   - first_where
+
+analyzer_rules:
+  - explicit_self

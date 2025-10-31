@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct UDataRequest<Model: Codable> {
+struct UDataRequest<Model: Decodable> {
   private var url: URL?
 
   init(url: URL?) {
