@@ -7,13 +7,54 @@
 
 import Foundation
 
+/// Lightweight artist info structure for recent tracks (only name and mbid, no url).
+public struct URecentTrackArtist {
+  /// Name of the artist.
+  public let name: String
+  
+  /// MusicBrainz ID of the artist (if available).
+  public let mbid: UItemID?
+}
+
+extension URecentTrackArtist {
+  enum CodingKeys: String, CodingKey {
+    case name
+    case mbid
+    case text = "#text"
+  }
+}
+
+extension URecentTrackArtist: Decodable {
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    
+    // Try to decode as #text first (API sometimes returns just #text)
+    if let text = try? container.decode(String.self, forKey: .text) {
+      self.name = text
+    } else {
+      self.name = try container.decode(String.self, forKey: .name)
+    }
+    
+    let mbid = try container.decodeIfPresent(String.self, forKey: .mbid)
+    self.mbid = mbid.map { UItemID(rawValue: $0) }
+  }
+}
+
+extension URecentTrackArtist: Encodable {
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(name, forKey: .name)
+    try container.encodeIfPresent(mbid?.rawValue, forKey: .mbid)
+  }
+}
+
 /// Represents a recent track scrobbled by a user.
 public struct UUserRecentTrack {
   /// The track name.
   public let name: String
   
   /// The artist information.
-  public let artist: UArtistInfo
+  public let artist: URecentTrackArtist
   
   /// The date and time when the track was scrobbled.
   public let date: Date?
@@ -65,7 +106,7 @@ extension UUserRecentTrack: Decodable {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     
     self.name = try container.decode(String.self, forKey: .name)
-    self.artist = try container.decode(UArtistInfo.self, forKey: .artist)
+    self.artist = try container.decode(URecentTrackArtist.self, forKey: .artist)
     
     // Date parsing
     if let dateContainer = try? container.nestedContainer(keyedBy: DateKeys.self, forKey: .date) {

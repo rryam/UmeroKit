@@ -983,6 +983,7 @@ extension UmeroKit {
   ///   - to: The end date/timestamp (optional).
   ///   - extended: Whether to return extended information (optional).
   ///   - taggingtype: The type of tags to retrieve (optional).
+  ///   - tag: The tag name for personal tags (optional).
   /// - Returns: The decoded response model of type `T`.
   private func getUserData<T: Decodable>(
     _ endpoint: UserEndpoint,
@@ -993,7 +994,8 @@ extension UmeroKit {
     from: Int? = nil,
     to: Int? = nil,
     extended: Bool? = nil,
-    taggingtype: String? = nil
+    taggingtype: String? = nil,
+    tag: String? = nil
   ) async throws -> T {
     guard !apiKey.isEmpty else { throw UmeroKitError.missingAPIKey }
     guard !secret.isEmpty else { throw UmeroKitError.missingSecret }
@@ -1037,6 +1039,7 @@ extension UmeroKit {
     }
     
     addQueryItemIfPresent("taggingtype", value: taggingtype)
+    addQueryItemIfPresent("tag", value: tag)
 
     components.items = queryItems
 
@@ -1375,7 +1378,7 @@ extension UmeroKit {
   ///   ```swift
   ///  do  {
   ///    let umero = UmeroKit(apiKey: apiKey, secret: secret, username: "myusername", password: "mypassword")
-  ///    let tags = try await umero.userPersonalTags(for: "someuser", taggingtype: "artist")
+  ///    let tags = try await umero.userPersonalTags(for: "someuser", tag: "rock", taggingtype: "artist")
   ///  } catch {
   ///    print("Error fetching personal tags: \(error).")
   ///  }
@@ -1383,17 +1386,26 @@ extension UmeroKit {
   ///
   /// - Parameters:
   ///   - username: The username (optional, defaults to authenticated user).
+  ///   - tag: The tag name to retrieve personal tags for.
   ///   - taggingtype: The type of tags to retrieve (artist, album, or track).
   ///   - limit: The number of tags to retrieve (default: 50).
   ///   - page: The page of results to retrieve (default: 1).
   /// - Returns: A `UUserPersonalTags` object containing the personal tags.
   public func userPersonalTags(
     for username: String? = nil,
+    tag: String,
     taggingtype: String,
     limit: Int = 50,
     page: Int = 1
   ) async throws -> UUserPersonalTags {
-    try await getUserData(.getPersonalTags, username: username, limit: limit, page: page, taggingtype: taggingtype)
+    try await getUserData(
+      .getPersonalTags,
+      username: username,
+      limit: limit,
+      page: page,
+      taggingtype: taggingtype,
+      tag: tag
+    )
   }
 }
 
