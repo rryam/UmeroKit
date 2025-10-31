@@ -182,12 +182,12 @@ struct UserEndpointTests {
     #expect(attributes.total == 500)
 
     // Test URecentTrackArtist with actual API format (#text for name)
-    let artistJSON = """
+    let artistJSON = Data("""
     {
       "mbid": "4fa5eab2-270a-44e9-bc84-cf9f00766c75",
       "#text": "Mario Vazquez"
     }
-    """.data(using: .utf8)!
+    """.utf8)
     
     do {
       let artist = try JSONDecoder().decode(URecentTrackArtist.self, from: artistJSON)
