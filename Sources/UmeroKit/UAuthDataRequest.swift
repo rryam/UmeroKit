@@ -52,12 +52,10 @@ struct UAuthDataRequest {
       URLQueryItem(name: key, value: value)
     }
     
-    // Get the query string (without the leading ?)
-    guard let queryString = urlComponents.url?.absoluteString.dropFirst() else {
+    // Get the POST body data from the URL components
+    guard let postData = urlComponents.query?.data(using: .utf8) else {
       throw UmeroKitError.invalidURL
     }
-    
-    let postData = String(queryString).data(using: .utf8)
 
     let request = UDataPostRequest<USession>(url: components.url, data: postData)
     let response = try await request.response()
