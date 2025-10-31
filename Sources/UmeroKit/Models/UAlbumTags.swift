@@ -21,10 +21,7 @@ extension UAlbumTags {
 extension UAlbumTags: Decodable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    
-    // Handle nested tags structure - decode UTags directly since it's Codable
-    // decodeIfPresent handles missing keys gracefully, but still throws errors for malformed data
-    self.tags = try container.decodeIfPresent(UTags.self, forKey: .tags) ?? UTags(tag: [])
+    self.tags = (try? container.decode(UTags.self, forKey: .tags)) ?? UTags(tag: [])
   }
 }
 

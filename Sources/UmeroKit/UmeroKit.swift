@@ -252,7 +252,7 @@ extension UmeroKit {
   ) async throws -> [UTag] {
     var components = UURLComponents(apiKey: apiKey, endpoint: AlbumEndpoint.getTags)
 
-    var queryItems: [URLQueryItem] = [
+    let queryItems: [URLQueryItem] = [
       URLQueryItem(name: "album", value: album),
       URLQueryItem(name: "artist", value: artist),
       URLQueryItem(name: "user", value: username)
