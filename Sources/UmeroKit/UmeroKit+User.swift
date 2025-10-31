@@ -35,28 +35,17 @@ extension UmeroKit {
     taggingtype: String? = nil,
     tag: String? = nil
   ) async throws -> T {
-    guard !apiKey.isEmpty else { throw UmeroKitError.missingAPIKey }
-    guard !secret.isEmpty else { throw UmeroKitError.missingSecret }
-    guard let instanceUsername = self.username else { throw UmeroKitError.missingUsername }
-    guard let password else { throw UmeroKitError.missingPassword }
-
-    // Authenticate to get session key
-    let authRequest = UAuthDataRequest(
-      username: instanceUsername,
-      password: password,
-      apiKey: apiKey,
-      secret: secret
-    )
-    let authResponse = try await authRequest.response()
+    let sessionKey = try await getAuthenticatedSessionKey()
 
     var components = UURLComponents(apiKey: apiKey, endpoint: endpoint)
     var queryItems: [URLQueryItem] = [
-      URLQueryItem(name: "sk", value: authResponse.key)
+      URLQueryItem(name: "sk", value: sessionKey)
     ]
 
     // Add username parameter if provided (for querying other users)
     // If not provided, use the authenticated user's username
-    let targetUsername = username ?? instanceUsername
+    // The `getAuthenticatedSessionKey` helper ensures `self.username` is not nil.
+    let targetUsername = username ?? self.username!
     queryItems.append(URLQueryItem(name: "user", value: targetUsername))
 
     // Helper function to conditionally add query items
