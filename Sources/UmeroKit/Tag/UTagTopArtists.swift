@@ -37,11 +37,4 @@ extension UTagTopArtists: Decodable {
   }
 }
 
-extension UTagTopArtists: Encodable {
-  public func encode(to encoder: Encoder) throws {
-    // TO:DO
-  }
-}
-
 extension UTagTopArtists: UTagRequestable {}
-

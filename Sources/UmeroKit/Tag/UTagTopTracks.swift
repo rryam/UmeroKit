@@ -18,6 +18,7 @@ public struct UTagTopTracks {
 
 extension UTagTopTracks {
   enum MainKey: String, CodingKey {
+    // Note: Last.fm API returns "tracks" as the root key, not "toptracks"
     case tracks
   }
 
@@ -37,11 +38,4 @@ extension UTagTopTracks: Decodable {
   }
 }
 
-extension UTagTopTracks: Encodable {
-  public func encode(to encoder: Encoder) throws {
-    // TO:DO
-  }
-}
-
 extension UTagTopTracks: UTagRequestable {}
-

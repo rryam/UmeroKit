@@ -391,15 +391,7 @@ extension UmeroKit {
   ///   - tag: The tag name.
   /// - Returns: An array of `UTag` objects representing similar tags.
   public func similarTags(for tag: String) async throws -> [UTag] {
-    var components = UURLComponents(apiKey: apiKey, endpoint: TagEndpoint.getSimilar)
-
-    var queryItems: [URLQueryItem] = []
-    queryItems.append(URLQueryItem(name: "tag", value: tag))
-
-    components.items = queryItems
-
-    let request = UDataRequest<UTagSimilar>(url: components.url)
-    let response = try await request.response()
+    let response: UTagSimilar = try await simpleTagRequest(for: tag, endpoint: .getSimilar)
     return response.tags
   }
 
@@ -419,16 +411,14 @@ extension UmeroKit {
   ///   - tag: The tag name.
   /// - Returns: A `UTagWeeklyChartList` object containing the weekly chart list entries.
   public func tagWeeklyChartList(for tag: String) async throws -> UTagWeeklyChartList {
-    var components = UURLComponents(apiKey: apiKey, endpoint: TagEndpoint.getWeeklyChartList)
+    return try await simpleTagRequest(for: tag, endpoint: .getWeeklyChartList)
+  }
 
-    var queryItems: [URLQueryItem] = []
-    queryItems.append(URLQueryItem(name: "tag", value: tag))
-
-    components.items = queryItems
-
-    let request = UDataRequest<UTagWeeklyChartList>(url: components.url)
-    let response = try await request.response()
-    return response
+  private func simpleTagRequest<T: Decodable>(for tag: String, endpoint: TagEndpoint) async throws -> T {
+    var components = UURLComponents(apiKey: apiKey, endpoint: endpoint)
+    components.items = [URLQueryItem(name: "tag", value: tag)]
+    let request = UDataRequest<T>(url: components.url)
+    return try await request.response()
   }
 }
 

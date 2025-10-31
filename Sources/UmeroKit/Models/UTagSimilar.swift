@@ -31,10 +31,3 @@ extension UTagSimilar: Decodable {
     self.tags = try tagsContainer.decode([UTag].self, forKey: .tag)
   }
 }
-
-extension UTagSimilar: Encodable {
-  public func encode(to encoder: Encoder) throws {
-    // TO:DO
-  }
-}
-

@@ -38,34 +38,17 @@ extension UTagAttributes: Codable {
 
     tag = try container.decode(String.self, forKey: .tag)
 
-    let pageString = try container.decode(String.self, forKey: .page)
-    let perPageString = try container.decode(String.self, forKey: .perPage)
-    let totalPagesString = try container.decode(String.self, forKey: .totalPages)
-    let totalString = try container.decode(String.self, forKey: .total)
-
-    guard let page = Int(pageString) else {
-      throw UmeroKitError.invalidDataFormat("Page is not a valid number for tag '\(tag)'")
+    func decodeValue<T: LosslessStringConvertible>(_ key: CodingKeys, as type: T.Type, name: String) throws -> T {
+      let stringValue = try container.decode(String.self, forKey: key)
+      guard let value = T(stringValue) else {
+        throw UmeroKitError.invalidDataFormat("\(name) is not a valid number for tag '\(tag)'")
+      }
+      return value
     }
-    self.page = page
 
-    guard let perPage = Int(perPageString) else {
-      throw UmeroKitError.invalidDataFormat("PerPage is not a valid number for tag '\(tag)'")
-    }
-    self.perPage = perPage
-
-    guard let totalPages = Double(totalPagesString) else {
-      throw UmeroKitError.invalidDataFormat("TotalPages is not a valid number for tag '\(tag)'")
-    }
-    self.totalPages = totalPages
-
-    guard let total = Double(totalString) else {
-      throw UmeroKitError.invalidDataFormat("Total is not a valid number for tag '\(tag)'")
-    }
-    self.total = total
-  }
-
-  public func encode(to encoder: Encoder) throws {
-    // TO:DO
+    self.page = try decodeValue(.page, as: Int.self, name: "Page")
+    self.perPage = try decodeValue(.perPage, as: Int.self, name: "PerPage")
+    self.totalPages = try decodeValue(.totalPages, as: Double.self, name: "TotalPages")
+    self.total = try decodeValue(.total, as: Double.self, name: "Total")
   }
 }
-

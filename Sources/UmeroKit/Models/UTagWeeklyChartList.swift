@@ -24,9 +24,17 @@ extension UTagWeeklyChartListItem {
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    // Decode as Int (Unix timestamp) - this is what Last.fm API returns
-    let fromTimestamp = try container.decode(Int.self, forKey: .from)
-    let toTimestamp = try container.decode(Int.self, forKey: .to)
+    // Decode as String first (Last.fm returns timestamps as strings), then convert to Int
+    let fromString = try container.decode(String.self, forKey: .from)
+    let toString = try container.decode(String.self, forKey: .to)
+    
+    guard let fromTimestamp = Int(fromString) else {
+      throw DecodingError.dataCorruptedError(forKey: .from, in: container, debugDescription: "Invalid timestamp format")
+    }
+    
+    guard let toTimestamp = Int(toString) else {
+      throw DecodingError.dataCorruptedError(forKey: .to, in: container, debugDescription: "Invalid timestamp format")
+    }
 
     self.from = Date(timeIntervalSince1970: TimeInterval(fromTimestamp))
     self.to = Date(timeIntervalSince1970: TimeInterval(toTimestamp))
@@ -63,10 +71,3 @@ extension UTagWeeklyChartList: Decodable {
     self.chartList = try chartListContainer.decode([UTagWeeklyChartListItem].self, forKey: .chart)
   }
 }
-
-extension UTagWeeklyChartList: Encodable {
-  public func encode(to encoder: Encoder) throws {
-    // TO:DO
-  }
-}
-

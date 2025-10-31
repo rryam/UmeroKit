@@ -18,6 +18,7 @@ public struct UTagTopAlbums {
 
 extension UTagTopAlbums {
   enum MainKey: String, CodingKey {
+    // Note: Last.fm API returns "albums" as the root key, not "topalbums"
     case albums
   }
 
@@ -37,11 +38,4 @@ extension UTagTopAlbums: Decodable {
   }
 }
 
-extension UTagTopAlbums: Encodable {
-  public func encode(to encoder: Encoder) throws {
-    // TO:DO
-  }
-}
-
 extension UTagTopAlbums: UTagRequestable {}
-
