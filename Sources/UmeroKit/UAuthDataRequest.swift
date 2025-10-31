@@ -46,15 +46,18 @@ struct UAuthDataRequest {
 
     parameters["api_sig"] = hashedSignature
 
-    let bodyString = parameters
-      .sorted(by: { $0.key < $1.key })
-      .map { key, value -> String in
-        let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value
-        return "\(key)=\(encodedValue)"
-      }
-      .joined(separator: "&")
-
-    let postData = bodyString.data(using: .utf8)
+    // Use URLComponents to properly encode form values, escaping reserved characters
+    var urlComponents = URLComponents()
+    urlComponents.queryItems = parameters.sorted(by: { $0.key < $1.key }).map { key, value in
+      URLQueryItem(name: key, value: value)
+    }
+    
+    // Get the query string (without the leading ?)
+    guard let queryString = urlComponents.url?.absoluteString.dropFirst() else {
+      throw UmeroKitError.invalidURL
+    }
+    
+    let postData = String(queryString).data(using: .utf8)
 
     let request = UDataPostRequest<USession>(url: components.url, data: postData)
     let response = try await request.response()
