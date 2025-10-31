@@ -198,11 +198,11 @@ struct UserEndpointTests {
     }
     
     // Test URecentTrackArtist without mbid
-    let artistNoMbidJSON = """
+    let artistNoMbidJSON = Data("""
     {
       "#text": "Test Artist"
     }
-    """.data(using: .utf8)!
+    """.utf8)
     
     do {
       let artistNoMbid = try JSONDecoder().decode(URecentTrackArtist.self, from: artistNoMbidJSON)
