@@ -1,4 +1,6 @@
 # UmeroKit
+[![Star History Chart](https://api.star-history.com/svg?repos=rryam/UmeroKit&type=Date)](https://star-history.com/#rryam/UmeroKit&Date)
+
 
 [![Swift](https://img.shields.io/badge/Swift-6.0+-orange)](https://swift.org)
 [![Platforms](https://img.shields.io/badge/Platforms-iOS%20%7C%20macOS%20%7C%20tvOS%20%7C%20watchOS-blue)](https://github.com/rryam/UmeroKit)
