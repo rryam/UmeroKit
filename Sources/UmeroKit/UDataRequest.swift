@@ -21,6 +21,8 @@ struct UDataRequest<Model: Decodable> {
 
     let (data, _) = try await URLSession.shared.data(from: url)
 
+    try ULastFmAPIError.throwIfPresent(in: data)
+
     let decoder = JSONDecoder()
     decoder.dateDecodingStrategy = .iso8601
     let model = try decoder.decode(Model.self, from: data)
@@ -32,10 +34,12 @@ public struct UDataPostRequest<Model: Codable>: Sendable {
   /// The URL for the data request.
   var url: URL?
   var data: Data?
+  var validatesAPIErrors: Bool
 
-  init(url: URL?, data: Data? = nil) {
+  init(url: URL?, data: Data? = nil, validatesAPIErrors: Bool = true) {
     self.url = url
     self.data = data
+    self.validatesAPIErrors = validatesAPIErrors
   }
 
   /// Write data to the last.fm endpoint that
@@ -60,6 +64,9 @@ public struct UDataPostRequest<Model: Codable>: Sendable {
     urlRequest.httpBody = data
     urlRequest.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
     let (urlRequestData, _) = try await URLSession.shared.data(for: urlRequest)
+    if validatesAPIErrors {
+      try ULastFmAPIError.throwIfPresent(in: urlRequestData)
+    }
     return urlRequestData
   }
 }

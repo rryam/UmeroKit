@@ -48,7 +48,7 @@ struct UAuthDataRequest {
 
     let postData = try UFormURLEncoder.formData(from: parameters)
 
-    let request = UDataPostRequest<USession>(url: components.url, data: postData)
+    let request = UDataPostRequest<USession>(url: components.url, data: postData, validatesAPIErrors: false)
     let response = try await request.response()
 
     // Check if both error and message are present

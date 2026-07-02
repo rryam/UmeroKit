@@ -35,8 +35,36 @@ extension UmeroKit {
     taggingtype: String? = nil,
     tag: String? = nil
   ) async throws -> T {
-    let sessionKey = try await getAuthenticatedSessionKey()
+    try await authenticatedRequest { sessionKey in
+      try await getUserData(
+        endpoint,
+        sessionKey: sessionKey,
+        username: username,
+        limit: limit,
+        page: page,
+        period: period,
+        from: from,
+        to: to,
+        extended: extended,
+        taggingtype: taggingtype,
+        tag: tag
+      )
+    }
+  }
 
+  private func getUserData<T: Decodable>(
+    _ endpoint: UserEndpoint,
+    sessionKey: String,
+    username: String? = nil,
+    limit: Int? = nil,
+    page: Int? = nil,
+    period: String? = nil,
+    from: Int? = nil,
+    to: Int? = nil,
+    extended: Bool? = nil,
+    taggingtype: String? = nil,
+    tag: String? = nil
+  ) async throws -> T {
     var components = UURLComponents(apiKey: apiKey, endpoint: endpoint)
     var queryItems: [URLQueryItem] = [
       URLQueryItem(name: "sk", value: sessionKey)
