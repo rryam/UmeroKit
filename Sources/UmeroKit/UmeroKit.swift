@@ -17,12 +17,26 @@ public struct UmeroKit: Sendable {
   let secret: String
   let username: String?
   let password: String?
+  let sessionKeyStore: USessionKeyStore
 
   public init(apiKey: String, secret: String, username: String? = nil, password: String? = nil) {
     self.apiKey = apiKey
     self.secret = secret
     self.username = username
     self.password = password
+    self.sessionKeyStore = USessionKeyStore()
+  }
+}
+
+actor USessionKeyStore {
+  private var sessionKey: String?
+
+  func value() -> String? {
+    sessionKey
+  }
+
+  func store(_ sessionKey: String) {
+    self.sessionKey = sessionKey
   }
 }
 

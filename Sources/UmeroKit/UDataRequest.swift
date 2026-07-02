@@ -43,12 +43,6 @@ public struct UDataPostRequest<Model: Codable>: Sendable {
   public func response() async throws -> Model {
     let urlRequestData = try await responseData()
 
-    #if DEBUG
-    if let jsonString = try? urlRequestData.printJSON() {
-      print(jsonString)
-    }
-    #endif
-
     let decoder = JSONDecoder()
     decoder.dateDecodingStrategy = .iso8601
     let model = try decoder.decode(Model.self, from: urlRequestData)

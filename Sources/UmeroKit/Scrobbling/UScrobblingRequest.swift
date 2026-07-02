@@ -76,15 +76,7 @@ struct UScrobblingRequest {
 
     parameters["api_sig"] = hashedSignature
 
-    let bodyString = parameters
-      .sorted(by: { $0.key < $1.key })
-      .map { key, value -> String in
-        let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value
-        return "\(key)=\(encodedValue)"
-      }
-      .joined(separator: "&")
-
-    let postData = bodyString.data(using: .utf8)
+    let postData = try UFormURLEncoder.formData(from: parameters)
 
     let request = UDataPostRequest<UItemCollection>(url: components.url, data: postData)
     _ = try await request.responseData()

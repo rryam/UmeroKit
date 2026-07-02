@@ -12,6 +12,10 @@ extension UmeroKit {
   /// Helper method to get authenticated session key.
   /// Validates credentials and returns a session key for authenticated requests.
   internal func getAuthenticatedSessionKey() async throws -> String {
+    if let sessionKey = await sessionKeyStore.value() {
+      return sessionKey
+    }
+
     guard !apiKey.isEmpty else { throw UmeroKitError.missingAPIKey }
     guard !secret.isEmpty else { throw UmeroKitError.missingSecret }
     guard let username else { throw UmeroKitError.missingUsername }
@@ -24,6 +28,7 @@ extension UmeroKit {
       secret: secret
     )
     let authResponse = try await authRequest.response()
+    await sessionKeyStore.store(authResponse.key)
     return authResponse.key
   }
 
