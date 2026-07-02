@@ -46,18 +46,9 @@ struct UAuthDataRequest {
 
     parameters["api_sig"] = hashedSignature
 
-    // Use URLComponents to properly encode form values, escaping reserved characters
-    var urlComponents = URLComponents()
-    urlComponents.queryItems = parameters.sorted(by: { $0.key < $1.key }).map { key, value in
-      URLQueryItem(name: key, value: value)
-    }
-    
-    // Get the POST body data from the URL components
-    guard let postData = urlComponents.query?.data(using: .utf8) else {
-      throw UmeroKitError.invalidURL
-    }
+    let postData = try UFormURLEncoder.formData(from: parameters)
 
-    let request = UDataPostRequest<USession>(url: components.url, data: postData)
+    let request = UDataPostRequest<USession>(url: components.url, data: postData, validatesAPIErrors: false)
     let response = try await request.response()
 
     // Check if both error and message are present
