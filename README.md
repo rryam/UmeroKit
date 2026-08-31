@@ -348,5 +348,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-[![Star History Chart](https://api.star-history.com/svg?repos=rryam/UmeroKit&type=Date)](https://star-history.com/#rryam/UmeroKit&Date)
